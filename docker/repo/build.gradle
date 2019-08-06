@@ -30,3 +30,14 @@ buildDockerImage {
     }
 }
 
+docker {
+    if(project.hasProperty('DOCKER_USER') && project.hasProperty('DOCKER_PASSWORD')) {
+        registryCredentials {
+            username = project.DOCKER_USER
+            password = project.DOCKER_PASSWORD
+        }
+    } else {
+        println "using default credentials"
+    }
+}
+
