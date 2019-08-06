@@ -1,0 +1,30 @@
+version: '2.1'
+
+services:
+  alfresco:
+    volumes:
+    - jdbc:/jdbc/
+    environment:
+    - DB_URL=jdbc:p6spy:mysql://database/alfresco?useUnicode=yes\&characterEncoding=UTF-8
+    - JAVA_OPTS_JDBC_DRIVER=-Dtomcat.common.loader.append=/jdbc/*.jar
+
+  database:
+    image: mariadb:10.1
+    volumes:
+    - mariadb:/var/lib/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_USER=alfresco
+    - MYSQL_PASSWORD=admin
+    - MYSQL_DATABASE=alfresco
+    depends_on:
+    - jdbc-driver
+
+  jdbc-driver:
+    image: xeniteu/jdbc-mariadb:2.2.5
+    volumes:
+    - jdbc:/jdbc/
+
+volumes:
+  mariadb:
+  jdbc:

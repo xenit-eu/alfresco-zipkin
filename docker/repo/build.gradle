@@ -1,0 +1,32 @@
+plugins {
+    id "eu.xenit.docker-alfresco" version "4.0.3"
+}
+
+dependencies {
+    baseAlfrescoWar "org.alfresco:alfresco-platform:5.2.g@war"
+    alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
+}
+
+project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-repo:amp")
+
+dockerAlfresco {
+    baseImage = "xeniteu/alfresco-repository-community:5.2.g"
+
+    leanImage = true
+
+    dockerBuild {
+        repository = "xeniteu/alfresco-zipkin-repo"
+        tags = [ rootProject.version.toString() ]
+        automaticTags = false
+        pull = true
+    }
+}
+
+buildDockerImage {
+    doLast {
+        project(':integration-tests').dockerCompose.environment.put('ALFRESCO_IMAGE', getImageId())
+        project(':integration-tests').dockerCompose.unconfigured.environment.put('ALFRESCO_IMAGE', getImageId())
+        project(':integration-tests').dockerCompose.mariadb.environment.put('ALFRESCO_IMAGE', getImageId())
+    }
+}
+

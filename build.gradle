@@ -1,0 +1,25 @@
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    group = 'eu.xenit.alfred.edge'
+    def baseVersion = "1.1.1"
+
+    def branchName = System.env.BRANCH_NAME
+
+    def isRelease = branchName != null && branchName.startsWith("release")
+    if (isRelease)
+        version = "$baseVersion"
+    else
+        version = "$baseVersion-SNAPSHOT"
+
+    project.ext {
+        alfresco_version = '5.2.5'
+        brave_version = '5.6.9'
+        zipkin_reporter_version = '2.10.0'
+    }
+}
+

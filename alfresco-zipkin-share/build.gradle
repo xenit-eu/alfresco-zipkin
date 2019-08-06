@@ -1,0 +1,59 @@
+plugins {
+    id 'eu.xenit.alfresco' version "0.2.0"
+    id "eu.xenit.amp" version "0.2.0"
+}
+
+project.description = "Share AMP with Zipkin Instrumentation"
+
+dependencies {
+    alfrescoProvided group: 'org.alfresco', name: 'share', version: "$alfresco_version", classifier: 'classes'
+    alfrescoProvided group: 'javax.servlet', name: 'servlet-api', version: '2.5'
+    compile("io.zipkin.brave:brave-instrumentation-servlet:$brave_version")
+    compile("io.zipkin.brave:brave-instrumentation-httpclient:$brave_version")
+    compile("io.zipkin.reporter2:zipkin-reporter:$zipkin_reporter_version")
+    compile("io.zipkin.reporter2:zipkin-sender-urlconnection:$zipkin_reporter_version")
+    compile (project(':alfresco-zipkin-core')) {
+        exclude group: "org.alfresco"
+    }
+
+    testCompile 'junit:junit:4.12'
+    testCompile "org.mockito:mockito-core:2.16.0"
+}
+
+amp {
+    from("$projectDir/src/main/resources"){
+        include '**/*.properties'
+        expand( artifactId: "$project.name",
+                title: "$project.name",
+                description: "$description",
+                version: "$project.version")
+    }
+    from("$projectDir/src/main/resources"){
+        exclude '**/*.properties'
+    }
+    archiveName "$project.name-$version" + ".amp"
+    destinationDir(file("$buildDir/libs"))
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+apply from: "../publish.gradle"
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            artifact amp
+        }
+    }
+}

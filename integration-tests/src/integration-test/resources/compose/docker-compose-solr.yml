@@ -1,0 +1,16 @@
+version: '2.1'
+
+services:
+  alfresco:
+    environment:
+    - INDEX=solr4
+
+  solr:
+    image: xeniteu/alfresco-solr4:5.1
+    volumes:
+    - solr:/opt/alfresco/alf_data
+    environment:
+    - ALFRESCO_HOST=alfresco
+
+volumes:
+  solr:

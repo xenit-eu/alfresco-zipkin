@@ -1,0 +1,31 @@
+plugins {
+    id "eu.xenit.docker-alfresco" version "4.0.3"
+}
+
+dependencies {
+    baseShareWar "org.alfresco:share:5.2.f@war"
+    shareAmp project(path: ':alfresco-zipkin-share', configuration: 'amp')
+}
+
+project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-share:amp")
+
+dockerAlfresco {
+    baseImage = "xeniteu/alfresco-share-community:5.2.f"
+
+    leanImage = true
+
+    dockerBuild {
+        repository = "xeniteu/alfresco-zipkin-share"
+        tags = [ rootProject.version.toString() ]
+        automaticTags = false
+        pull = true
+    }
+}
+
+buildDockerImage {
+    doLast {
+        project(':integration-tests').dockerCompose.environment.put('SHARE_IMAGE', getImageId())
+        project(':integration-tests').dockerCompose.unconfigured.environment.put('SHARE_IMAGE', getImageId())
+        project(':integration-tests').dockerCompose.mariadb.environment.put('SHARE_IMAGE', getImageId())
+    }
+}

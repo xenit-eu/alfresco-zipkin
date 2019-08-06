@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="test-properties" class="java.util.Properties" />
+
+    <!--
+    Load/simulate a 'global-properties' bean & bean-property expansion
+     -->
+    <bean id="global-properties" class="org.alfresco.config.JndiPropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath*:config/alfresco/module/*/alfresco-global.properties</value>
+            </list>
+        </property>
+        <property name="propertiesArray">
+            <list>
+                <ref bean="test-properties" />
+            </list>
+        </property>
+        <property name="localOverride" value="true" />
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <property name="propertiesPersister">
+            <bean class="org.alfresco.config.AlfrescoPropertiesPersister"/>
+        </property>
+    </bean>
+
+    <bean id="common-placeholder-configurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" abstract="true">
+        <!-- Note: If you change these settings you may also want to change them in the LegacyConfigPostProcessor as well. -->
+        <property name="valueSeparator">
+            <null/>
+        </property>
+        <property name="ignoreUnresolvablePlaceholders">
+            <value>true</value>
+        </property>
+        <property name="searchSystemEnvironment">
+            <value>false</value>
+        </property>
+        <property name="propertiesPersister">
+            <bean class="org.alfresco.config.AlfrescoPropertiesPersister"/>
+        </property>
+    </bean>
+
+    <!-- Expand global properties and version information in bean definitions -->
+    <bean id="repository-properties" parent="common-placeholder-configurer">
+        <property name="locations">
+            <list>
+                <!--  Non-overridable version information -->
+                <value>classpath:alfresco/version.properties</value>
+            </list>
+        </property>
+        <property name="properties">
+            <!--<list>-->
+                <ref bean="global-properties"/>
+            <!--</list>-->
+        </property>
+        <!--  Do not allow version information to be overriden -->
+        <property name="localOverride">
+            <value>false</value>
+        </property>
+        <property name="systemPropertiesModeName">
+            <value>SYSTEM_PROPERTIES_MODE_NEVER</value>
+        </property>
+        <!-- Order before shared-properties to give you a chance to override its parameters here -->
+        <property name="order">
+            <value>6</value>
+        </property>
+    </bean>
+
+    <bean id="new-repo-properties" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+
+    </bean>
+</beans>

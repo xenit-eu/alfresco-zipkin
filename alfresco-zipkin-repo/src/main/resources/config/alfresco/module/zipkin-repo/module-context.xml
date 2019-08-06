@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+
+    <!-- Used by REPO to receive requests from SHARE & SOLR -->
+
+    <bean id="eu.xenit.alfresco.instrumentation.filter.repo"
+          class="eu.xenit.alfresco.instrumentation.servlet.ServletContextTracingFilter">
+        <property name="tracing" ref="repoTracing" />
+    </bean>
+
+    <bean id="defaultZipkinTracingFactory" abstract="true"
+          class="eu.xenit.alfresco.instrumentation.servlet.TracingFactory">
+        <property name="URL" value="${zipkin.collector}"/>
+    </bean>
+
+    <bean id="repoTracing"
+          factory-bean="repoTracingFactory"
+          factory-method="createInstance" >
+    </bean>
+
+    <bean id="repoTracingFactory"
+          parent="defaultZipkinTracingFactory">
+        <property name="serviceName" value="${zipkin.service.alfresco.name}" />
+        <property name="sampler" ref="repoSamplerHighVolume"/>
+    </bean>
+
+    <!--  0.0000 -> 1.0000  -->
+    <bean id="repoSamplerHighVolume"
+          class="brave.sampler.BoundarySampler"
+          factory-method="create">
+        <constructor-arg value="${zipkin.service.alfresco.sampler.rate}"/>
+    </bean>
+
+    <!-- 0.00 -> 1.00
+    <bean id="repoSamplerLowVolume"
+          class="brave.sampler.CountingSampler"
+          factory-method="create">
+        <constructor-arg value="${zipkin.service.alfresco.sampler.rate}"/>
+    </bean>
+       -->
+
+    <bean id="httpTracingFactory"
+          class="eu.xenit.alfresco.instrumentation.httpclient.HttpTracingFactory">
+    </bean>
+</beans>

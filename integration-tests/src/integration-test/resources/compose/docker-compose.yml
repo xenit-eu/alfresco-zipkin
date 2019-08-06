@@ -1,0 +1,34 @@
+version: '2.1'
+
+services:
+  alfresco:
+    image: ${ALFRESCO_IMAGE:-xeniteu/alfresco-zipkin-repo:local}
+    volumes:
+    - alfresco:/opt/alfresco/alf_data
+    - ./alfresco/netcat-healthcheck.sh:/netcat-healthcheck.sh:z
+    ports:
+    - ${COMPOSE_ALFRESCO_TCP_8080:-8081:8080}
+    environment:
+    - DB_URL=jdbc:postgresql://database:5432/alfresco
+    - SOLR_HOST=solr
+    - INDEX=noindex
+    depends_on:
+    - database
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/alfresco/s/api/server"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  database:
+    image: xeniteu/postgres:10.9
+    volumes:
+    - postgres:/var/lib/postgresql/data
+    environment:
+    - POSTGRES_USER=alfresco
+    - POSTGRES_PASSWORD=admin
+    - POSTGRES_DB=alfresco
+
+volumes:
+  alfresco:
+  postgres:

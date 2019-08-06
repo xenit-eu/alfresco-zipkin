@@ -1,0 +1,8 @@
+include 'alfresco-zipkin-core'
+include 'alfresco-zipkin-repo'
+include 'docker:repo'
+include 'docker:share'
+include 'alfresco-zipkin-share'
+include 'integration-tests'
+
+rootProject.name = 'alfresco-zipkin'
