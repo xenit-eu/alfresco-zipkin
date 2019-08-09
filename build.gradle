@@ -10,7 +10,7 @@ allprojects {
 
     def branchName = System.env.BRANCH_NAME
 
-    def isRelease = branchName != null && branchName.startsWith("release")
+    def isRelease = branchName != null && (branchName.startsWith("master") || branchName.startsWith("release"))
     if (isRelease)
         version = "$baseVersion"
     else
