@@ -2,6 +2,14 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
 
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven {
+            url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
+        }
+    }
+
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -17,7 +25,7 @@ allprojects {
         version = "$baseVersion-SNAPSHOT"
 
     project.ext {
-        alfresco_version = '5.2.5'
+        alfresco_version = '5.2.f'
         brave_version = '5.6.9'
         zipkin_reporter_version = '2.10.0'
     }
