@@ -76,6 +76,7 @@ dockerCompose {
     environment.put 'COMPOSE_ALFRESCO_TCP_8080', '8080'
     environment.put 'COMPOSE_SHARE_TCP_8080', '8080'
     environment.put 'COMPOSE_ZIPKIN_TCP_9411', '9411'
+    environment.put 'COMPOSE_DB_URL', 'jdbc:p6spy:postgresql://database:5432/alfresco'
 
     def composeDir = 'src/integration-test/resources/compose'
 
@@ -87,6 +88,7 @@ dockerCompose {
     ]
 
     unconfigured {
+        environment.put 'COMPOSE_DB_URL', 'jdbc:postgresql://database:5432/alfresco'
         useComposeFiles = [
                 "$composeDir/docker-compose.yml",
                 "$composeDir/docker-compose-share.yml"
@@ -95,12 +97,13 @@ dockerCompose {
     }
 
     mariadb {
+        environment.put 'COMPOSE_DB_URL', 'jdbc:p6spy:mysql://database/alfresco?useUnicode=yes&characterEncoding=UTF-8'
         useComposeFiles = [
                 "$composeDir/docker-compose.yml",
                 "$composeDir/docker-compose-share.yml",
                 "$composeDir/docker-compose-solr.yml",
-                "$composeDir/docker-compose-zipkin.yml",
-                "$composeDir/docker-compose-mariadb.yml"
+                "$composeDir/docker-compose-mariadb.yml",
+                "$composeDir/docker-compose-zipkin.yml"
         ]
         isRequiredBy(project.tasks.integrationTestMariadb)
     }

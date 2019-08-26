@@ -5,7 +5,7 @@ services:
     volumes:
     - jdbc:/jdbc/
     environment:
-    - DB_URL=jdbc:p6spy:mysql://database/alfresco?useUnicode=yes\&characterEncoding=UTF-8
+    - DB_URL=${COMPOSE_DB_URL:-jdbc:p6spy:mysql://database/alfresco?useUnicode=yes\&characterEncoding=UTF-8}
     - JAVA_OPTS_JDBC_DRIVER=-Dtomcat.common.loader.append=/jdbc/*.jar
 
   database:
@@ -21,7 +21,7 @@ services:
     - jdbc-driver
 
   jdbc-driver:
-    image: xeniteu/jdbc-mariadb:2.2.5
+    image: xeniteu/jdbc-mysql:5.1.42
     volumes:
     - jdbc:/jdbc/
 
