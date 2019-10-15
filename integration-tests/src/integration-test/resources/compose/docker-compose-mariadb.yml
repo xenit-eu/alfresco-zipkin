@@ -21,7 +21,7 @@ services:
     - jdbc-driver
 
   jdbc-driver:
-    image: xeniteu/jdbc-mysql:5.1.42
+    image: xenit/jdbc-mysql:5.1.42
     volumes:
     - jdbc:/jdbc/
 
