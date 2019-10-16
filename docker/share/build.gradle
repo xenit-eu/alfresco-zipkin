@@ -10,12 +10,12 @@ dependencies {
 project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-share:amp")
 
 dockerAlfresco {
-    baseImage = "xenit/alfresco-share-community:5.2.f"
+    baseImage = "docker.io/xenit/alfresco-share-community:5.2.f"
 
     leanImage = true
 
     dockerBuild {
-        repository = "xenit/alfresco-zipkin-share"
+        repository = "docker.io/xenit/alfresco-zipkin-share"
         tags = [ rootProject.version.toString() ]
         automaticTags = false
         pull = true

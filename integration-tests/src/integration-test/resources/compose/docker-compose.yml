@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   alfresco:
-    image: ${ALFRESCO_IMAGE:-xenit/alfresco-zipkin-repo:local}
+    image: ${ALFRESCO_IMAGE:-docker.io/xenit/alfresco-zipkin-repo:local}
     volumes:
     - alfresco:/opt/alfresco/alf_data
     - ./alfresco/netcat-healthcheck.sh:/netcat-healthcheck.sh:z
@@ -21,7 +21,7 @@ services:
       retries: 3
 
   database:
-    image: xenit/postgres:10.10
+    image: docker.io/xenit/postgres:10.10
     volumes:
     - postgres:/var/lib/postgresql/data
     environment:

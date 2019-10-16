@@ -6,7 +6,7 @@ services:
     - INDEX=solr4
 
   solr:
-    image: xenit/alfresco-solr4:5.1
+    image: docker.io/xenit/alfresco-solr4:5.1
     volumes:
     - solr:/opt/alfresco/alf_data
     environment:
