@@ -1,8 +1,9 @@
 # Alfresco-zipkin
 
+Integrates Alfresco with Zipkin, a distributed tracing system, that gathers timing data to troubleshoot latency problems.
+
 This project creates two amps, `alfresco-zipkin-repo.amp` and `alfresco-zipkin-share.amp`.
-These amps add zipkin tracing functionality to Alfresco. 
-Tracing data will be reported to a zipkin spancollector.
+These amps add zipkin tracing functionality to Alfresco. Tracing data will be reported to a zipkin spancollector.
 
 ## Building
 
