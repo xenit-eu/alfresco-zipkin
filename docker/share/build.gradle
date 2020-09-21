@@ -1,5 +1,5 @@
 plugins {
-    id "eu.xenit.docker-alfresco" version "5.0.7"
+    id "eu.xenit.docker-alfresco"
 }
 
 dependencies {
@@ -19,14 +19,6 @@ dockerAlfresco {
         tags = [ rootProject.version ]
         automaticTags = false
         pull = true
-    }
-}
-
-buildDockerImage {
-    doLast {
-        project(':integration-tests').dockerCompose.environment.put('SHARE_IMAGE', getImageId())
-        project(':integration-tests').dockerCompose.unconfigured.environment.put('SHARE_IMAGE', getImageId())
-        project(':integration-tests').dockerCompose.mariadb.environment.put('SHARE_IMAGE', getImageId())
     }
 }
 
