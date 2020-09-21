@@ -13,6 +13,6 @@ services:
     - JAVA_OPTS=-Dzipkin.collector=http://zipkin:9411/api/v2/spans
 
   zipkin:
-    image: openzipkin/zipkin:2.10.4
+    image: docker.io/openzipkin/zipkin:2
     ports:
     - ${COMPOSE_ZIPKIN_TCP_9411:-9411:9411}
