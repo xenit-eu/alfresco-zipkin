@@ -1,5 +1,5 @@
 plugins {
-    id "eu.xenit.docker-alfresco" version "4.0.3"
+    id "eu.xenit.docker-alfresco" version "5.0.7"
 }
 
 dependencies {
@@ -16,7 +16,7 @@ dockerAlfresco {
 
     dockerBuild {
         repository = "docker.io/xenit/alfresco-zipkin-repo"
-        tags = [ rootProject.version.toString() ]
+        tags = [ rootProject.version ]
         automaticTags = false
         pull = true
     }
