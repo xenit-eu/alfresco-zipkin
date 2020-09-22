@@ -1,5 +1,5 @@
 plugins {
-    id "com.avast.gradle.docker-compose" version "0.9.4"
+    id "eu.xenit.docker-compose"
 }
 
 sourceSets {
@@ -63,8 +63,15 @@ afterEvaluate {
     mariadbComposeUp.dependsOn(":docker:share:buildDockerImage")
 }
 
+evaluationDependsOn(":docker:repo")
+evaluationDependsOn(":docker:share")
+
+
 dockerCompose {
     isRequiredBy(project.tasks.integrationTestDefault)
+
+    fromBuildImage("ALFRESCO_IMAGE", rootProject.project(":docker:repo").tasks.named('buildDockerImage'))
+    fromBuildImage("SHARE_IMAGE", rootProject.project(":docker:share").tasks.named('buildDockerImage'))
 
     captureContainersOutput = true
     removeVolumes = true

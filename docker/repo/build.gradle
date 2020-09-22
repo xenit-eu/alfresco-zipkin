@@ -1,5 +1,5 @@
 plugins {
-    id "eu.xenit.docker-alfresco" version "4.0.3"
+    id "eu.xenit.docker-alfresco"
 }
 
 dependencies {
@@ -16,17 +16,9 @@ dockerAlfresco {
 
     dockerBuild {
         repository = "docker.io/xenit/alfresco-zipkin-repo"
-        tags = [ rootProject.version.toString() ]
+        tags = [ rootProject.version ]
         automaticTags = false
         pull = true
-    }
-}
-
-buildDockerImage {
-    doLast {
-        project(':integration-tests').dockerCompose.environment.put('ALFRESCO_IMAGE', getImageId())
-        project(':integration-tests').dockerCompose.unconfigured.environment.put('ALFRESCO_IMAGE', getImageId())
-        project(':integration-tests').dockerCompose.mariadb.environment.put('ALFRESCO_IMAGE', getImageId())
     }
 }
 

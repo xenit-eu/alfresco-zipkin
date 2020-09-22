@@ -6,7 +6,6 @@ pipeline{
         stage("Build") {
             steps {
                 sh "./gradlew clean build -x test"
-                archiveArtifacts artifacts: '**/build/libs/*', excludes: null
             }
         }
 
@@ -36,6 +35,12 @@ pipeline{
 
 
         stage('Publish Jars & Amps') {
+            when {
+                anyOf {
+                    branch "master*"
+                    branch "release*"
+                }
+            }
             environment {
                 SONATYPE_CREDENTIALS = credentials('sonatype')
                 GPGPASSPHRASE = credentials('gpgpassphrase')
