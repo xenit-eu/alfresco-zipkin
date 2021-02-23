@@ -109,6 +109,9 @@ public class ZipkinTraceTest {
 
     private String randomTraceId() {
         long longTraceId = java.util.concurrent.ThreadLocalRandom.current().nextLong();
-        return Long.toHexString(longTraceId);
+        String s = Long.toHexString(longTraceId);
+        // if (length == 15) throw new RuntimeException("WTF");
+        // https://github.com/openzipkin/zipkin/blob/master/zipkin/src/main/java/zipkin2/Span.java#L638
+        return s.length() == 15 ? "0" + s : s;
     }
 }
