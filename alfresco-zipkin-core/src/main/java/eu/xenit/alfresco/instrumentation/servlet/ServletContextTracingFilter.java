@@ -4,7 +4,12 @@ import brave.Tracing;
 import brave.servlet.TracingFilter;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.IOException;
 
 /**
@@ -31,7 +36,7 @@ public class ServletContextTracingFilter implements Filter, InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         tracingFilter = TracingFilter.create(tracing);
     }
 

@@ -30,8 +30,10 @@ allprojects {
 
     project.ext {
         alfresco_version = '5.2.f'
-        brave_version = '5.6.9'
-        zipkin_reporter_version = '2.10.0'
+//        brave_version = '5.6.9'
+        brave_version = '5.13.3'
+//        zipkin_reporter_version = '2.10.0'
+        zipkin_reporter_version = '2.16.3'
     }
 }
 
