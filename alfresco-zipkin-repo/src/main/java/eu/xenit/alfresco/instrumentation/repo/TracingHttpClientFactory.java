@@ -1,12 +1,14 @@
 package eu.xenit.alfresco.instrumentation.repo;
 
 import brave.http.HttpTracing;
+import brave.httpclient.TracingHttpClientBuilder;
 import org.alfresco.httpclient.HttpClientFactory;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 /**
  * A factory for creating Http Clients with tracing functionality
@@ -30,6 +32,7 @@ public class TracingHttpClientFactory extends HttpClientFactory{
     {
         MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 //        httpTracing.tracing().
+        CloseableHttpClient chc = TracingHttpClientBuilder.create(httpTracing).build();
         TracingHttpClient tracingHttpClient = new TracingHttpClient(httpTracing, connectionManager);
         HttpClientParams params = tracingHttpClient.getParams();
         params.setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true);

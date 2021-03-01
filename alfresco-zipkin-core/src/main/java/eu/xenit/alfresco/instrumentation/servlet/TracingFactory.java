@@ -2,11 +2,10 @@ package eu.xenit.alfresco.instrumentation.servlet;
 
 import brave.Tracing;
 import brave.context.log4j12.MDCScopeDecorator;
+import brave.handler.SpanHandler;
 import brave.propagation.ThreadLocalCurrentTraceContext;
 import brave.sampler.Sampler;
-import zipkin2.Span;
-import zipkin2.reporter.AsyncReporter;
-import zipkin2.reporter.Reporter;
+import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
 import zipkin2.reporter.urlconnection.URLConnectionSender;
 
 // Note: it looks like we could remove this whole class
@@ -29,11 +28,11 @@ public class TracingFactory {
         Tracing.Builder builder = Tracing.newBuilder()
                 .currentTraceContext(
                         ThreadLocalCurrentTraceContext.newBuilder()
-                                    .addScopeDecorator(MDCScopeDecorator.create())
+                                    .addScopeDecorator(MDCScopeDecorator.newBuilder().build())
                                     .build())
                 ;
 
-        builder.spanReporter(this.getReporter());
+        builder.addSpanHandler(this.getReporter());
 
         if (serviceName != null)
                 builder.localServiceName(serviceName);
@@ -44,11 +43,11 @@ public class TracingFactory {
         return builder.build();
     }
 
-    public Reporter<Span> getReporter() {
+    public SpanHandler getReporter() {
         if (url == null || url.trim().isEmpty())
-            return Reporter.NOOP;
+            return SpanHandler.NOOP;
 
-        return AsyncReporter.create(URLConnectionSender.create(url));
+        return AsyncZipkinSpanHandler.create(URLConnectionSender.create(url));
     }
 
     public TracingFactory setURL(String url) {
