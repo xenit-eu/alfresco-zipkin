@@ -45,7 +45,7 @@ This example assumes an otherwise correctly configured Alfresco service to be co
 
 #### Enabling tracing on requests
 
-Only a certain percentage of requests will be traced and reported to your Zipkin collector. By default we set this percentage to 0 (because we use the Chrome browser plugin). There are two ways to have your requests traced.
+Only a certain percentage of requests will be traced and reported to your Zipkin collector. There are two ways to have your requests traced.
 
 ##### 1) alfresco-global.properties
 
@@ -65,7 +65,9 @@ The value should be set between `0.0` and `1.0`, signifying respectively no trac
 
 ##### 2) Chrome browser plugin
 
-There is a [Chrome browser plugin](https://chrome.google.com/webstore/detail/zipkin-browser-extension/jdpmaacocdhbmkppghmgnjmfikeeldfe) made by Zipkin that can be used for toggling whether to add the tracing headers to your browser requests and send tracing information to a span collector of your choice. This is very convenient for local development. 
+There was a [Chrome browser plugin](https://chrome.google.com/webstore/detail/zipkin-browser-extension/jdpmaacocdhbmkppghmgnjmfikeeldfe) made by the Zipkin team that can be used for toggling whether to add the tracing headers to your browser requests and send tracing information to a span collector of your choice. This was very convenient for local development. 
+
+However it seems that it is no longer available on the Chrome Webstore. You might still be able to build it yourself (also for Firefox). [zipkin-browser-extension](https://github.com/openzipkin/zipkin-browser-extension) 
 
 
 ### P6spy
