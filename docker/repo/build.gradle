@@ -7,8 +7,6 @@ dependencies {
     alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
 }
 
-project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-repo:amp")
-
 dockerAlfresco {
     baseImage = "docker.io/xenit/alfresco-repository-community:5.2.g"
 
@@ -16,7 +14,7 @@ dockerAlfresco {
 
     dockerBuild {
         repository = "docker.io/xenit/alfresco-zipkin-repo"
-        tags = [ rootProject.version ]
+        tags = [ rootProject.version.toString() ]
         automaticTags = false
         pull = true
     }

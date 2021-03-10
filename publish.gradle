@@ -1,5 +1,6 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'java-library'
 
 publishing {
     publications {
@@ -48,4 +49,10 @@ signing {
     required { !version.toString().endsWith("SNAPSHOT") }
     useInMemoryPgpKeys(findProperty("signingKeyId"), findProperty("signingKey"), findProperty("signingPassword"))
     sign publishing.publications
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }

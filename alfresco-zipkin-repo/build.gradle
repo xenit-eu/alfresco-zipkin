@@ -22,31 +22,6 @@ dependencies {
     testRuntime group: 'javax.servlet', name: 'servlet-api', version: '2.5'
 }
 
-amp {
-    from("$projectDir/src/main/resources"){
-        include '**/*.properties'
-        expand( artifactId: "$project.name",
-                title: "$project.name",
-                description: "$description",
-                version: "$project.version")
-    }
-    from("$projectDir/src/main/resources"){
-        exclude '**/*.properties'
-    }
-    archiveName "$project.name-$version" + ".amp"
-    destinationDir(file("$buildDir/libs"))
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
 apply from: "../publish.gradle"
 
 publishing {

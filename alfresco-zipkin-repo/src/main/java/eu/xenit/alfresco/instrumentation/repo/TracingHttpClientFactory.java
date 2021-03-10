@@ -23,7 +23,7 @@ public class TracingHttpClientFactory extends HttpClientFactory{
 
     /**
      * Creates a Http Client with tracing functionality
-     * @return
+     * @return Tracing HttpClient
      */
     @Override
     protected HttpClient constructHttpClient()

@@ -17,16 +17,22 @@ allprojects {
         zipkin_reporter_version = '2.16.3'
     }
 
-    pluginManager.withPlugin('java') {
-        repositories {
-            mavenCentral()
-            maven {
-                url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
-            }
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
         }
+    }
 
+    pluginManager.withPlugin('java') {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
+
+        java {
+            withJavadocJar()
+            withSourcesJar()
+
+        }
     }
 
     pluginManager.withPlugin('eu.xenit.docker-config') {
