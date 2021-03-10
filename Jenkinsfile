@@ -59,11 +59,8 @@ pipeline{
                     branch "release*"
                 }
             }
-            environment {
-                DOCKER_HUB_CREDENTIALS = credentials('docker-hub')
-            }
             steps {
-                sh "./gradlew pushDockerImage -PDOCKER_USER=${DOCKER_HUB_CREDENTIALS_USR} -PDOCKER_PASSWORD=${DOCKER_HUB_CREDENTIALS_PSW}"
+                sh "./gradlew pushDockerImage"
             }
         }
     }
