@@ -1,3 +1,7 @@
+plugins {
+    id "java"
+}
+
 dependencies {
     compile("org.alfresco:alfresco-repository:$alfresco_version")
     compile("io.zipkin.brave:brave-instrumentation-servlet:$brave_version")
