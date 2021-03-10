@@ -4,3 +4,12 @@
 build
 out
 *.log
+## VS Code
+bin/
+**/bin/
+.classpath
+.project
+.settings/
+**/.classpath
+**/.project
+**/.settings/
