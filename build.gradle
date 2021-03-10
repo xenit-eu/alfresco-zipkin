@@ -1,17 +1,32 @@
 plugins {
     id "eu.xenit.docker-compose" version "5.2.0" apply false
+    id 'org.ajoberstar.reckon' version "0.13.0"
+}
+
+reckon {
+    scopeFromProp()
+    snapshotFromProp()
 }
 
 allprojects {
-    apply plugin: 'java'
-    apply plugin: 'idea'
+    group = 'eu.xenit.alfred.edge'
 
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven {
-            url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
+    project.ext {
+        alfresco_version = '5.2.f'
+        brave_version = '5.13.3'
+        zipkin_reporter_version = '2.16.3'
+    }
+
+    pluginManager.withPlugin('java') {
+        repositories {
+            mavenCentral()
+            maven {
+                url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
+            }
         }
+
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
 
     pluginManager.withPlugin('eu.xenit.docker-config') {
@@ -25,26 +40,6 @@ allprojects {
                 logger.debug "using default credentials"
             }
         }
-    }
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    group = 'eu.xenit.alfred.edge'
-    def baseVersion = "1.1.1"
-
-    def branchName = System.env.BRANCH_NAME
-
-    def isRelease = branchName != null && branchName.startsWith("release")
-    if (isRelease)
-        version = "$baseVersion"
-    else
-        version = "$baseVersion-SNAPSHOT"
-
-    project.ext {
-        alfresco_version = '5.2.f'
-        brave_version = '5.13.3'
-        zipkin_reporter_version = '2.16.3'
     }
 }
 
