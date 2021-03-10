@@ -37,8 +37,8 @@ publishing {
             url = version.toString().endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
             credentials {
-                username = project.hasProperty('sonatype_username') ? project.publish_username : ''
-                password = project.hasProperty('sonatype_password') ? project.publish_password : ''
+                username = project.hasProperty('sonatype_username') ? project.sonatype_username : ''
+                password = project.hasProperty('sonatype_password') ? project.sonatype_password : ''
             }
         }
     }
