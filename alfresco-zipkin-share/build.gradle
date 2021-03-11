@@ -1,6 +1,6 @@
 plugins {
-    id 'eu.xenit.alfresco' version "1.0.1"
-    id "eu.xenit.amp" version "1.0.1"
+    id 'eu.xenit.alfresco'
+    id "eu.xenit.amp"
     id "java"
 }
 
@@ -13,9 +13,7 @@ dependencies {
     compile("io.zipkin.brave:brave-instrumentation-httpclient:$brave_version")
     compile("io.zipkin.reporter2:zipkin-reporter:$zipkin_reporter_version")
     compile("io.zipkin.reporter2:zipkin-sender-urlconnection:$zipkin_reporter_version")
-    compile(project(':alfresco-zipkin-core')) {
-        exclude group: "org.alfresco"
-    }
+    compile(project(':alfresco-zipkin-core'))
 
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:2.28.2"

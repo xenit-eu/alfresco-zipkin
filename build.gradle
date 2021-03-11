@@ -1,4 +1,5 @@
 plugins {
+    id "eu.xenit.alfresco" version "1.0.1" apply false
     id "eu.xenit.docker-compose" version "5.2.0" apply false
     id 'org.ajoberstar.reckon' version "0.13.0"
 }
@@ -9,6 +10,7 @@ reckon {
 }
 
 allprojects {
+    apply plugin: "eu.xenit.alfresco"
     group = 'eu.xenit.alfred.edge'
 
     project.ext {
@@ -19,9 +21,7 @@ allprojects {
 
     repositories {
         mavenCentral()
-        maven {
-            url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
-        }
+        alfrescoPublic()
     }
 
     pluginManager.withPlugin('java') {
