@@ -1,6 +1,5 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-apply plugin: 'java-library'
 
 publishing {
     publications {
