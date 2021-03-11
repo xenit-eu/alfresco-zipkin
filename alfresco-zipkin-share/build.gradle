@@ -21,6 +21,14 @@ dependencies {
     testCompile "org.mockito:mockito-core:2.28.2"
 }
 
+sourceSets {
+    test {
+        resources {
+            srcDirs += files("${project.projectDir}/src/main/amp/")
+        }
+    }
+}
+
 apply from: "../publish.gradle"
 
 publishing {

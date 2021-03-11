@@ -30,6 +30,14 @@ project.tasks.amp.config {
     }
 }
 
+sourceSets {
+    test {
+        resources {
+            srcDirs += files("${project.projectDir}/src/main/amp/")
+        }
+    }
+}
+
 apply from: "../publish.gradle"
 
 publishing {
