@@ -6,8 +6,6 @@ plugins {
 sourceSets {
     integrationTest {
         java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
             srcDir file('src/integration-test/java')
         }
         resources {
@@ -55,24 +53,11 @@ task integrationTests(type: Test, group: "verification") {
     dependsOn integrationTestUnconfigured
 }
 
-afterEvaluate {
-    composeUp.dependsOn(":docker:repo:buildDockerImage")
-    composeUp.dependsOn(":docker:share:buildDockerImage")
-    unconfiguredComposeUp.dependsOn(":docker:repo:buildDockerImage")
-    unconfiguredComposeUp.dependsOn(":docker:share:buildDockerImage")
-    mariadbComposeUp.dependsOn(":docker:repo:buildDockerImage")
-    mariadbComposeUp.dependsOn(":docker:share:buildDockerImage")
-}
-
-evaluationDependsOn(":docker:repo")
-evaluationDependsOn(":docker:share")
-
-
 dockerCompose {
     isRequiredBy(project.tasks.integrationTestDefault)
 
-    fromBuildImage("ALFRESCO_IMAGE", rootProject.project(":docker:repo").tasks.named('buildDockerImage'))
-    fromBuildImage("SHARE_IMAGE", rootProject.project(":docker:share").tasks.named('buildDockerImage'))
+    fromProject("ALFRESCO_IMAGE", ":docker:repo")
+    fromProject("SHARE_IMAGE", ":docker:share")
 
     captureContainersOutput = true
     removeVolumes = true
