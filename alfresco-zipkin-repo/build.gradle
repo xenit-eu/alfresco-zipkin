@@ -24,12 +24,6 @@ dependencies {
     testRuntime group: 'javax.servlet', name: 'servlet-api', version: '2.5'
 }
 
-project.tasks.amp.config {
-    from files("${project.projectDir}/src/main/amp/") {
-        into "/"
-    }
-}
-
 sourceSets {
     test {
         resources {
