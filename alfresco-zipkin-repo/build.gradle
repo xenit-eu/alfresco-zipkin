@@ -20,14 +20,7 @@ dependencies {
 
     testCompile group: 'junit', name:'junit', version:'4.12'
     testRuntime group: 'javax.servlet', name: 'servlet-api', version: '2.5'
-}
-
-sourceSets {
-    test {
-        resources {
-            srcDirs += files("${project.projectDir}/src/main/amp/")
-        }
-    }
+    testRuntime files(amp)
 }
 
 apply from: "../publish.gradle"

@@ -13,20 +13,13 @@ dependencies {
     compile("io.zipkin.brave:brave-instrumentation-httpclient:$brave_version")
     compile("io.zipkin.reporter2:zipkin-reporter:$zipkin_reporter_version")
     compile("io.zipkin.reporter2:zipkin-sender-urlconnection:$zipkin_reporter_version")
-    compile (project(':alfresco-zipkin-core')) {
+    compile(project(':alfresco-zipkin-core')) {
         exclude group: "org.alfresco"
     }
 
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:2.28.2"
-}
-
-sourceSets {
-    test {
-        resources {
-            srcDirs += files("${project.projectDir}/src/main/amp/")
-        }
-    }
+    testRuntime files(amp)
 }
 
 apply from: "../publish.gradle"
