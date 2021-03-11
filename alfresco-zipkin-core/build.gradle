@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    alfrescoProvided("org.alfresco:alfresco-repository:$alfresco_version")
+    alfrescoProvided platform("org.alfresco:alfresco-repository:$alfresco_version")
+    alfrescoProvided "org.springframework:spring-beans"
     compile("io.zipkin.brave:brave-instrumentation-servlet:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-httpclient:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-p6spy:$brave_version")
