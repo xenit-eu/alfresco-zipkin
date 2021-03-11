@@ -1,3 +1,5 @@
+import eu.xenit.gradle.alfrescosdk.tasks.Amp
+
 plugins {
     id 'eu.xenit.alfresco' version "1.0.1"
     id "eu.xenit.amp" version "1.0.1"
@@ -20,6 +22,12 @@ dependencies {
 
     testCompile group: 'junit', name:'junit', version:'4.12'
     testRuntime group: 'javax.servlet', name: 'servlet-api', version: '2.5'
+}
+
+project.tasks.amp.config {
+    from files("${project.projectDir}/src/main/amp/") {
+        into "/"
+    }
 }
 
 apply from: "../publish.gradle"
