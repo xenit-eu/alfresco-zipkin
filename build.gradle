@@ -3,6 +3,8 @@ plugins {
     id 'org.ajoberstar.reckon' version "0.13.0"
 }
 
+version = "2.0.0"
+
 reckon {
     scopeFromProp()
     snapshotFromProp()
@@ -33,6 +35,8 @@ allprojects {
             withSourcesJar()
 
         }
+
+        reckonTagCreate.dependsOn check
     }
 
     pluginManager.withPlugin('eu.xenit.docker-config') {
@@ -48,4 +52,3 @@ allprojects {
         }
     }
 }
-
