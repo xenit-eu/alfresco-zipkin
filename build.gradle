@@ -17,14 +17,14 @@ allprojects {
         zipkin_reporter_version = '2.16.3'
     }
 
-    pluginManager.withPlugin('java') {
-        repositories {
-            mavenCentral()
-            maven {
-                url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
-            }
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
         }
+    }
 
+    pluginManager.withPlugin('java') {
         java {
             withSourcesJar()
             withJavadocJar()

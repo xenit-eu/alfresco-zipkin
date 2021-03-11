@@ -1,5 +1,3 @@
-import eu.xenit.gradle.alfrescosdk.tasks.Amp
-
 plugins {
     id 'eu.xenit.alfresco' version "1.0.1"
     id "eu.xenit.amp" version "1.0.1"
