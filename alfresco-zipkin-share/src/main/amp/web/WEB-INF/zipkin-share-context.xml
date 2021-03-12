@@ -12,7 +12,6 @@
           class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
             <list>
-                <value>classpath:config/alfresco/web-extension/alfresco-global.properties</value>
                 <value>classpath*:alfresco/web-extension/alfresco-global.properties</value>
             </list>
         </property>
