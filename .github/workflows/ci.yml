@@ -22,17 +22,11 @@ jobs:
       #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       #          GITHUB_TOKEN: ${{ github.token }}
       #        run: ./gradlew sonarqube -Dsonar.projectKey=xenit-eu_alfresco-gradle-sdk -Dsonar.organization=xenit-eu -Dsonar.host.url=https://sonarcloud.io
-#      - name: Publish
-#        if: ${{ github.ref == 'refs/heads/master' || startswith(github.ref, 'refs/tags/') }}
-#        env:
-#          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }}
-#          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
-#          ORG_GRADLE_PROJECT_sonatype_username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-#          ORG_GRADLE_PROJECT_sonatype_password: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-#        run: ./gradlew publish
-#      - name: Publish docker images
-#        if: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/') }}
-#        env:
-#          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-#          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-#        run: ./gradlew pushDockerImage
+      - name: Publish
+        if: ${{ github.ref == 'refs/heads/master' || startswith(github.ref, 'refs/tags/') }}
+        env:
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
+          ORG_GRADLE_PROJECT_sonatype_username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatype_password: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+        run: ./gradlew publish
