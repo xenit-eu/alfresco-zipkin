@@ -17,15 +17,15 @@ allprojects {
     targetCompatibility = 1.8
 
     group = 'eu.xenit.alfred.edge'
-    def baseVersion = "1.1.1"
+    def baseVersion = "0.0.0"
 
     def branchName = System.env.BRANCH_NAME
 
-    def isRelease = branchName != null && branchName.startsWith("release")
-    if (isRelease)
+//    def isRelease = branchName != null && branchName.startsWith("release")
+//    if (isRelease)
         version = "$baseVersion"
-    else
-        version = "$baseVersion-SNAPSHOT"
+//    else
+//        version = "$baseVersion-SNAPSHOT"
 
     project.ext {
         alfresco_version = '5.2.f'
