@@ -3,10 +3,6 @@ package eu.xenit.alfresco.instrumentation.repo;
 import brave.http.HttpTracing;
 import org.alfresco.httpclient.HttpClientFactory;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import org.apache.commons.httpclient.params.HttpConnectionParams;
 
 /**
  * A factory for creating Http Clients with tracing functionality
@@ -26,24 +22,9 @@ public class TracingHttpClientFactory extends HttpClientFactory{
      * @return
      */
     @Override
-    protected HttpClient constructHttpClient()
-    {
-        MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
-//        httpTracing.tracing().
-        TracingHttpClient tracingHttpClient = new TracingHttpClient(httpTracing, connectionManager);
-        HttpClientParams params = tracingHttpClient.getParams();
-        params.setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true);
-        params.setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, true);
-        if (socketTimeout != null)
-        {
-            params.setSoTimeout(socketTimeout);
-        }
-        HttpConnectionManagerParams connectionManagerParams = tracingHttpClient.getHttpConnectionManager().getParams();
-        connectionManagerParams.setMaxTotalConnections(maxTotalConnections);
-        connectionManagerParams.setDefaultMaxConnectionsPerHost(maxHostConnections);
-        connectionManagerParams.setConnectionTimeout(connectionTimeout);
-
-        return tracingHttpClient;
+    protected HttpClient constructHttpClient() {
+        // return new TracingHttpClient(httpTracing);   // TODO incompatible http client libraries here
+        return null;                                    // TODO This null will break Alfresco's HttpClient creation for the time being
     }
 
     public void init(){
