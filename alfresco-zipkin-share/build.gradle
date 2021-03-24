@@ -6,7 +6,7 @@ plugins {
 project.description = "Share AMP with Zipkin Instrumentation"
 
 dependencies {
-    alfrescoProvided group: 'org.alfresco', name: 'share', version: "$alfresco_version", classifier: 'classes'
+    alfrescoProvided group: 'org.alfresco', name: 'share', version: "$share_version", classifier: 'classes'
     alfrescoProvided group: 'javax.servlet', name: 'servlet-api', version: '2.5'
     compile("io.zipkin.brave:brave-instrumentation-servlet:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-httpclient:$brave_version")

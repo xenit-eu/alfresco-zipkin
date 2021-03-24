@@ -28,7 +28,8 @@ allprojects {
         version = "$baseVersion-SNAPSHOT"
 
     project.ext {
-        alfresco_version = '5.2.f'
+        alfresco_version = '6.0'
+        share_version = '6.0'
         brave_version = '5.13.3'
         zipkin_reporter_version = '2.16.3'
     }

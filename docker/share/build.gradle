@@ -3,14 +3,14 @@ plugins {
 }
 
 dependencies {
-    baseShareWar "org.alfresco:share:5.2.f@war"
+    baseShareWar "org.alfresco:share:6.0@war"
     shareAmp project(path: ':alfresco-zipkin-share', configuration: 'amp')
 }
 
 project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-share:amp")
 
 dockerAlfresco {
-    baseImage = "docker.io/xenit/alfresco-share-community:5.2.f"
+    baseImage = "docker.io/xenit/alfresco-share-community:6.0"
 
     leanImage = true
 

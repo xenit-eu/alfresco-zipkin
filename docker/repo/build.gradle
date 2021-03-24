@@ -3,14 +3,16 @@ plugins {
 }
 
 dependencies {
-    baseAlfrescoWar "org.alfresco:alfresco-platform:5.2.g@war"
+    baseAlfrescoWar 'org.alfresco:content-services-community:6.0.7-ga@war'
+//    baseAlfrescoWar "org.alfresco:alfresco-platform:6.0@war"
+//    baseAlfrescoWar 'org.alfresco:content-services:6.2.0@war'
     alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
 }
 
 project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-repo:amp")
 
 dockerAlfresco {
-    baseImage = "docker.io/xenit/alfresco-repository-community:5.2.g"
+    baseImage = "docker.io/xenit/alfresco-repository-community:6.0"
 
     leanImage = true
 
