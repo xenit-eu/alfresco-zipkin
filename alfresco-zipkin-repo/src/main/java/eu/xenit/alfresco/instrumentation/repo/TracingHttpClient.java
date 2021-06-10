@@ -65,7 +65,8 @@ public class TracingHttpClient extends HttpClient {
             logger.info(String.format("found a match for the query: %s", queryMatcher.matches()));
             if (queryMatcher.find()) {
                 logger.info("match found through group:" + queryMatcher.group(0));
-                span.tag("query_group", queryMatcher.group(0));
+                span.tag("query_group", queryMatcher.group(0).replaceAll(queryPattern.pattern(),"$1" ));
+                span.tag("query_group1", queryMatcher.group(1));
                 String query = responseBodyAsString.subSequence(queryMatcher.start(), queryMatcher.end()).toString();
                 logger.info("query found: " + query);
                 span.tag("query", query);
@@ -74,7 +75,7 @@ public class TracingHttpClient extends HttpClient {
             JSONObject jsonResponse = new JSONObject(responseBodyAsString);
             span.tag("Number of results found",((JSONObject)jsonResponse.get("response")).get("numFound").toString());
 
-            String Qtime = ((JSONObject)jsonResponse.get("response")).get("numFound").toString();
+            String Qtime = ((JSONObject)jsonResponse.get("responseHeader")).get("QTime").toString();
             span.tag("Qtime", Qtime);
 
             span.tag("body", method.getResponseBodyAsString());
