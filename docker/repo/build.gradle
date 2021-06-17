@@ -10,7 +10,7 @@ dependencies {
 project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-repo:amp")
 
 dockerAlfresco {
-    baseImage = "docker.io/xenit/alfresco-repository-community:5.2.g"
+    baseImage = "hub.xenit.eu/alfresco-enterprise/alfresco-enterprise:5.2.5"
 
     leanImage = true
 
