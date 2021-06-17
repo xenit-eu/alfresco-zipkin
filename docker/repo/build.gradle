@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    baseAlfrescoWar "org.alfresco:alfresco-platform:5.2.g@war"
+    baseAlfrescoWar "org.alfresco:alfresco-enterprise:5.2.7.3@war"
     alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
 }
 

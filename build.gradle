@@ -10,7 +10,14 @@ allprojects {
     repositories {
         mavenCentral()
         maven {
-            url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
+            url 'https://artifacts.alfresco.com/nexus/content/groups/public'
+        }
+        maven {
+            url 'https://artifacts.alfresco.com/nexus/content/groups/private'
+            credentials {
+                username project.property('org.alfresco.maven.nexus.username')
+                password project.property('org.alfresco.maven.nexus.password')
+            }
         }
     }
 
@@ -29,7 +36,7 @@ allprojects {
         version = "$baseVersion-SNAPSHOT"
 
     project.ext {
-        alfresco_version = '5.2.5'
+        alfresco_version = '5.2.f'
         brave_version = '5.13.3'
         zipkin_reporter_version = '2.16.3'
     }
