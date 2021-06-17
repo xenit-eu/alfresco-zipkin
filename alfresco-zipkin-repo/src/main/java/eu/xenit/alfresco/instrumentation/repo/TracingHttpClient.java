@@ -51,9 +51,9 @@ public class TracingHttpClient extends HttpClient {
         span.annotate("Solr post Query");
 
         try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
-            HttpMethodParams params = method.getParams();
-            params.setParameter("solrDebug", "on");
-            method.setParams(params);
+            String q = method.getQueryString();
+            String debugQ = q + "&debugQuery=on";
+            method.setQueryString(debugQ);
             responseStatus = super.executeMethod(hostconfig, method, state);
         } catch (RuntimeException | Error e) {
             error = e;
@@ -79,6 +79,8 @@ public class TracingHttpClient extends HttpClient {
             span.tag("Qtime", Qtime);
 
             span.tag("body", method.getResponseBodyAsString());
+
+
             httpClientHandler.handleReceive(responseStatus, error, span);
         }
         return responseStatus;

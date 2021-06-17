@@ -3,23 +3,19 @@ plugins {
 }
 
 dependencies {
-    baseAlfrescoWar "org.alfresco:alfresco-enterprise:5.2.7.3@war"
+    baseAlfrescoWar "org.alfresco:alfresco-enterprise:5.2.5@war"
     alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
+    alfrescoSM (group: 'org.postgresql', name: 'postgresql', version: '42.2.22')
+    alfrescoSM (group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.3')
+
+
 }
 
 project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-repo:amp")
 
 dockerAlfresco {
-    baseImage = "hub.xenit.eu/alfresco-enterprise/alfresco-enterprise:5.2.5"
-
-    leanImage = true
-
-    dockerBuild {
-        repository = "docker.io/xenit/alfresco-zipkin-repo"
-        tags = [ rootProject.version ]
-        automaticTags = false
-        pull = true
-    }
+    baseImage = "docker.io/xenit/alfresco-repository-skeleton:5.2"
+    leanImage = false
 }
 
 docker {

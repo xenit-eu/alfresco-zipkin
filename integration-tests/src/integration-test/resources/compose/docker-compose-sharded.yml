@@ -2,38 +2,15 @@ version: '2.1'
 
 services:
   alfresco:
-    image: ${ALFRESCO_IMAGE:-docker.io/xenit/alfresco-zipkin-repo:local}
-    volumes:
-    - alfresco:/opt/alfresco/alf_data
-    - ./alfresco/netcat-healthcheck.sh:/netcat-healthcheck.sh:z
-    - logs:/usr/local/tomcat/logs
-    ports:
-    - ${COMPOSE_ALFRESCO_TCP_8080:-8081:8080}
     environment:
-    - DB_URL=${COMPOSE_DB_URL:-jdbc:postgresql://database:5432/alfresco}
-    - SOLR_HOST=solr
-    - INDEX=noindex
-    - SOLR_SSL=none
+    - INDEX=solr6
     - ENABLE_CLUSTERING=true
+    - SOLR_SSL=none
     - DYNAMIC_SHARD_REGISTRATION=true
     - GLOBAL_local.transform.service.enabled=false
     - DEBUG=true
     depends_on:
     - database
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/alfresco/s/api/server"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-
-  database:
-    image: docker.io/xenit/postgres:10.10
-    volumes:
-    - postgres:/var/lib/postgresql/data
-    environment:
-    - POSTGRES_USER=alfresco
-    - POSTGRES_PASSWORD=admin
-    - POSTGRES_DB=alfresco
 
   shard1:
     image: hub.xenit.eu/alfresco-enterprise/alfresco-solr6:1.3.0.6
