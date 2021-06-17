@@ -1,11 +1,5 @@
-plugins {
-    id 'eu.xenit.docker-alfresco'
-    id "eu.xenit.docker-compose"
-    id "eu.xenit.docker"
-}
-
 dependencies {
-    baseAlfrescoWar (group: 'org.alfresco', name: 'alfresco-enterprise', version: '5.2.5', ext: 'war')
+    compile("org.alfresco:alfresco-repository:$alfresco_version")
     compile("io.zipkin.brave:brave-instrumentation-servlet:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-httpclient:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-p6spy:$brave_version")
