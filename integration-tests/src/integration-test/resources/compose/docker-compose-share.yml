@@ -3,5 +3,7 @@ version: '2.1'
 services:
   share:
     image: ${SHARE_IMAGE:-docker.io/xenit/alfresco-zipkin-share:local}
+    container_name: share
     ports:
-      - ${COMPOSE_SHARE_TCP_8080:-8082:8080}
+    - 8080:8080
+    - ${COMPOSE_SHARE_TCP_8080:-8082:8080}
