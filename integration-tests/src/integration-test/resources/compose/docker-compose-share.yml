@@ -1,6 +1,7 @@
 version: '2.1'
 
 services:
+
   share:
     image: ${SHARE_IMAGE:-docker.io/xenit/alfresco-zipkin-share:local}
     container_name: share

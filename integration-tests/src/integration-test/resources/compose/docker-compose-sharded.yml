@@ -5,12 +5,8 @@ services:
     environment:
     - INDEX=solr6
     - ENABLE_CLUSTERING=true
-    - SOLR_SSL=none
     - DYNAMIC_SHARD_REGISTRATION=true
     - GLOBAL_local.transform.service.enabled=false
-    - DEBUG=true
-    depends_on:
-    - database
 
   shard1:
     image: hub.xenit.eu/alfresco-enterprise/alfresco-solr6:1.3.0.6

@@ -5,19 +5,20 @@ services:
     image: ${ALFRESCO_IMAGE:-docker.io/xenit/alfresco-zipkin-repo:local}
     container_name: alfresco
     volumes:
-    - alfresco:/opt/alfresco/alf_data
-    - ./alfresco/netcat-healthcheck.sh:/netcat-healthcheck.sh:z
+      - alfresco:/opt/alfresco/alf_data
+      - ./alfresco/netcat-healthcheck.sh:/netcat-healthcheck.sh:z
     ports:
-    - ${COMPOSE_ALFRESCO_TCP_8080:-8081:8080}
-    - 8000:8000
+      - ${COMPOSE_ALFRESCO_TCP_8080:-8081:8080}
+      - 8000:8000
     environment:
-    - DB_URL=${COMPOSE_DB_URL:-jdbc:postgresql://database:5432/alfresco}
-    - SOLR_HOST=solr
-    - INDEX=noindex
+      - DB_URL=${COMPOSE_DB_URL:-jdbc:postgresql://database:5432/alfresco}
+      - SOLR_HOST=solr
+      - INDEX=noindex
+      - DEBUG=true
     depends_on:
-    - database
+      - database
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/alfresco/s/api/server"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/alfresco/s/api/server" ]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -26,11 +27,11 @@ services:
     image: docker.io/xenit/postgres:10.10
     container_name: postgres
     volumes:
-    - postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     environment:
-    - POSTGRES_USER=alfresco
-    - POSTGRES_PASSWORD=admin
-    - POSTGRES_DB=alfresco
+      - POSTGRES_USER=alfresco
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=alfresco
 
 volumes:
   alfresco:
