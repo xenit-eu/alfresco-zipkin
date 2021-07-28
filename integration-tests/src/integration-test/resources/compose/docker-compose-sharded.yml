@@ -3,10 +3,11 @@ version: '2.1'
 services:
   alfresco:
     environment:
-    - INDEX=solr6
-    - ENABLE_CLUSTERING=true
-    - DYNAMIC_SHARD_REGISTRATION=true
-    - GLOBAL_local.transform.service.enabled=false
+      - INDEX=solr6
+      - SOLR_SSL=none
+      - ENABLE_CLUSTERING=true
+      - DYNAMIC_SHARD_REGISTRATION=true
+      - GLOBAL_local.transform.service.enabled=false
 
   shard1:
     image: hub.xenit.eu/alfresco-enterprise/alfresco-solr6:1.3.0.6

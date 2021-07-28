@@ -6,10 +6,6 @@ import brave.Tracer;
 import brave.http.HttpClientHandler;
 import brave.http.HttpTracing;
 import brave.propagation.TraceContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.regex.Pattern;
-
 import eu.xenit.alfresco.instrumentation.solr.VirtualSolrSpanFactory;
 import org.apache.commons.httpclient.*;
 
