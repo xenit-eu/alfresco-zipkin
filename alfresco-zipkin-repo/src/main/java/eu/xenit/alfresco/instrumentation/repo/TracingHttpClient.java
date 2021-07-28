@@ -37,7 +37,7 @@ public class TracingHttpClient extends HttpClient {
         init();
     }
 
-    private void init(){
+    private void init() {
         tracer = httpTracing.tracing().tracer();
         httpClientHandler = HttpClientHandler.create(httpTracing, new TracingHttpClientAdapter());
         injector = httpTracing.tracing().propagation().injector(HttpMethod::setRequestHeader);
@@ -62,15 +62,14 @@ public class TracingHttpClient extends HttpClient {
             throw e;
         } finally {
             String responseBodyAsString = method.getResponseBodyAsString();
-            JSONObject jsonResponse = new JSONObject(responseBodyAsString);
             try {
-                span.tag("body" , jsonResponse.toString(4));
+                JSONObject jsonResponse = new JSONObject(responseBodyAsString);
                 VirtualSolrSpanFactory spanFactory = new VirtualSolrSpanFactory(jsonResponse, method.getPath());
                 long endTime = clock.currentTimeMicroseconds();
                 spanFactory.createVirtualSolrSpans(tracer, span, startTime, endTime);
             } catch (Exception e) {
                 span.error(e);
-                throw e;
+                logger.error(e.toString());
             } finally {
                 httpClientHandler.handleReceive(responseStatus, error, span);
             }
