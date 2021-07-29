@@ -10,7 +10,6 @@ services:
       - GLOBAL_zipkin.service.alfresco.sampler.rate=1.0
       - GLOBAL_zipkin.service.solr.sampler.rate=1.0
       - GLOBAL_zipkin.service.share.sampler.rate=1.0
-      - INDEX=solr4
 
   share:
     environment:

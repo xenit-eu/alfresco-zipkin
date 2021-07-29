@@ -8,7 +8,7 @@
     <bean id="solrHttpClientFactory"
           class="eu.xenit.alfresco.instrumentation.repo.TracingHttpClientFactory"
           init-method="init">
-        <property name="httpTracing" ref="solrHttpTracing" />
+        <property name="httpTracing" ref="solrHttpTracing"/>
 
         <property name="secureCommsType" value="${solr.secureComms}"/>
         <property name="sSLEncryptionParameters" ref="sslEncryptionParameters"/>
@@ -23,31 +23,33 @@
     </bean>
 
     <bean id="solrBeanPatch"
-            class="eu.xenit.alfresco.instrumentation.patches.HttpClientFactoryBeanDefinitionPostProcessor">
-        <constructor-arg type = "java.lang.String"  value = "solrHttpClientFactory"/>
-        <constructor-arg type = "java.lang.String"  value = "org.alfresco.repo.search.impl.solr.SolrStoreMapping.solrHttpClientFactory"/>
-        <constructor-arg type = "java.lang.String"  value = "eu.xenit.alfresco.instrumentation.repo.TracingHttpClientFactory"/>
+          class="eu.xenit.alfresco.instrumentation.patches.HttpClientFactoryBeanDefinitionPostProcessor">
+        <constructor-arg type="java.lang.String" value="solrHttpClientFactory"/>
+        <constructor-arg type="java.lang.String"
+                         value="org.alfresco.repo.search.impl.solr.SolrStoreMapping.solrHttpClientFactory"/>
+        <constructor-arg type="java.lang.String"
+                         value="eu.xenit.alfresco.instrumentation.repo.TracingHttpClientFactory"/>
     </bean>
 
     <bean id="solrHttpTracing"
           factory-bean="solrHttpTracingFactory"
           factory-method="createInstance">
-        <constructor-arg ref="solrTracing" />
+        <constructor-arg ref="solrTracing"/>
     </bean>
 
     <bean id="solrHttpTracingFactory"
           parent="httpTracingFactory">
- <!--       <property name="clientSampler" ref="solrClientSampler"/>  -->
+        <!--       <property name="clientSampler" ref="solrClientSampler"/>  -->
     </bean>
 
     <bean id="solrTracing"
           factory-bean="solrTracingFactory"
-          factory-method="createInstance" >
+          factory-method="createInstance">
     </bean>
 
     <bean id="solrTracingFactory"
           parent="defaultZipkinTracingFactory">
-        <property name="serviceName" value="${zipkin.service.solr.name}" />
+        <property name="serviceName" value="${zipkin.service.solr.name}"/>
     </bean>
 
     <!-- can be used to trace the communication between SOLR & Alfresco
