@@ -67,7 +67,6 @@ public class TracingHttpClient extends HttpClient {
                 long endTime = clock.currentTimeMicroseconds();
                 mainRequest.applyToSpan(tracer, span, startTime, endTime);
             } catch (Exception e) {
-                span.error(e);
                 logger.error(e.toString());
             } finally {
                 httpClientHandler.handleReceive(responseStatus, error, span);
