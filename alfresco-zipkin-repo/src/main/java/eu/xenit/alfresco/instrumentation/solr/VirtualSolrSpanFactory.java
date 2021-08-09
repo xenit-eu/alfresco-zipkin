@@ -50,12 +50,12 @@ public class VirtualSolrSpanFactory {
 
         if (jsonResponse.has(RESPONSE_KEY)) {
             JSONObject responseSection = jsonResponse.getJSONObject(RESPONSE_KEY);
-            numFound = Integer.parseInt(responseSection.getString(NUMFOUND_KEY));
+            numFound = Integer.parseInt(String.valueOf(responseSection.opt(NUMFOUND_KEY)));
         }
 
         if (jsonResponse.has(RESPONSE_HEADER_KEY)) {
             JSONObject responseHeader = jsonResponse.getJSONObject(RESPONSE_HEADER_KEY);
-            qTime = Long.parseLong(responseHeader.getString(QTIME_KEY));
+            qTime = Long.parseLong(String.valueOf(responseHeader.opt(QTIME_KEY)));
         }
 
         if (jsonResponse.has(ORIGINAL_PARAMS_KEY)) {
@@ -188,13 +188,15 @@ public class VirtualSolrSpanFactory {
 
                         String subResponse = subRequestTrackingInfo.optString("Response");
 
-                        JSONObject timings;
+                        JSONObject timings = null;
                         try {
                             // Timings section in debug information is not necessarily a correctly formatted JSONObject.
                             // (can contain illegal chars due to shard urls)
                             // Use Regex instead to get the timing information for the subrequests
-                            timings = new JSONObject(findTimings(subResponse));
+                            String timingString = findTimings(subResponse);
+                            timings = new JSONObject(timingString.replaceAll("=", ":"));
                         } catch (JSONException e) {
+                            e.printStackTrace();
                             throw e;
                         }
 
@@ -218,4 +220,15 @@ public class VirtualSolrSpanFactory {
         }
     }
 
+    public SolrRequest getMainSolrRequest() {
+        return solrRequest;
+    }
+
+    public boolean isSharded() {
+        return sharded;
+    }
+
+    public HashMap<String, ShardedSolrRequest> getShardedRequests() {
+        return shardedRequests;
+    }
 }
