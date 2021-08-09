@@ -52,12 +52,12 @@ public class TestSolrSpanFactory {
         assertNotNull(solrRequest.qTime);
         assertNotNull(solrRequest.query);
         assertNotNull(solrRequest.numFound);
-        HashMap<String, ShardedSolrRequest> shardedRequests = virtualSolrSpanFactory.getShardedRequests();
+        HashMap<String, ShardedSolrRequest> shardedRequests = solrRequest.getShardedRequests();
 
-        assertEquals(shouldBeSharded, virtualSolrSpanFactory.isSharded());
+        assertEquals(shouldBeSharded, solrRequest.sharded);
 
         if (shouldBeSharded) {
-            assertNotNull(virtualSolrSpanFactory.getShardedRequests());
+            assertNotNull(solrRequest.getShardedRequests());
             for (ShardedSolrRequest shardedSolrRequest : shardedRequests.values()) {
                 assertNotNull(shardedSolrRequest.shardName);
                 assertNotNull(shardedSolrRequest.query);
@@ -78,8 +78,8 @@ public class TestSolrSpanFactory {
     public void testShardedDebugInfoParsing() throws IOException {
         String path = "http://shard1:8080/solr/shard1";
         JSONObject debugInfo = loadTestDebugInformation("debugInfoText.txt");
-        VirtualSolrSpanFactory virtualSolrSpanFactory = new VirtualSolrSpanFactory(debugInfo, path);
-        SolrRequest solrRequest = virtualSolrSpanFactory.getMainSolrRequest();
+        VirtualSolrSpanFactory virtualSolrSpanFactory = new VirtualSolrSpanFactory();
+        SolrRequest solrRequest = virtualSolrSpanFactory.parseDebugInformationIntoSolrRequest(debugInfo, path);
         assertSolrRequest(solrRequest, virtualSolrSpanFactory, true);
     }
 

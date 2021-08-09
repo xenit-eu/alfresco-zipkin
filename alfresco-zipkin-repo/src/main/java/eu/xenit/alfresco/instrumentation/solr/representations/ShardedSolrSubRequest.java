@@ -14,11 +14,10 @@ public class ShardedSolrSubRequest extends ShardedSolrRequest {
     }
 
     @Override
-    public Span applyToSpan(Span solrSpan, long startTime) {
-        solrSpan = super.applyToSpan(solrSpan, startTime);
+    public void addInfoToSpan(Span solrSpan, long startTime) {
+        super.addInfoToSpan(solrSpan, startTime);
         solrSpan.name(phaseName);
         solrSpan.tag("Request Purpose", requestPurpose);
-        return solrSpan;
     }
 
 }

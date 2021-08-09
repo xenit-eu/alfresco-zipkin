@@ -7,6 +7,7 @@ import brave.http.HttpClientHandler;
 import brave.http.HttpTracing;
 import brave.propagation.TraceContext;
 import eu.xenit.alfresco.instrumentation.solr.VirtualSolrSpanFactory;
+import eu.xenit.alfresco.instrumentation.solr.representations.SolrRequest;
 import org.apache.commons.httpclient.*;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class TracingHttpClient extends HttpClient {
     private Tracer tracer;
     private HttpClientHandler<HttpMethod, Integer> httpClientHandler;
     private TraceContext.Injector<HttpMethod> injector;
+    private VirtualSolrSpanFactory virtualSolrSpanFactory;
 
     public TracingHttpClient(HttpTracing httpTracing, HttpConnectionManager httpConnectionManager) {
         super(httpConnectionManager);
@@ -37,6 +39,7 @@ public class TracingHttpClient extends HttpClient {
         tracer = httpTracing.tracing().tracer();
         httpClientHandler = HttpClientHandler.create(httpTracing, new TracingHttpClientAdapter());
         injector = httpTracing.tracing().propagation().injector(HttpMethod::setRequestHeader);
+        virtualSolrSpanFactory = new VirtualSolrSpanFactory();
     }
 
     @Override
@@ -60,9 +63,9 @@ public class TracingHttpClient extends HttpClient {
             String responseBodyAsString = method.getResponseBodyAsString();
             try {
                 JSONObject jsonResponse = new JSONObject(responseBodyAsString);
-                VirtualSolrSpanFactory spanFactory = new VirtualSolrSpanFactory(jsonResponse, method.getPath());
+                SolrRequest mainRequest = virtualSolrSpanFactory.parseDebugInformationIntoSolrRequest(jsonResponse, method.getPath());
                 long endTime = clock.currentTimeMicroseconds();
-                spanFactory.createVirtualSolrSpans(tracer, span, startTime, endTime);
+                mainRequest.applyToSpan(tracer, span, startTime, endTime);
             } catch (Exception e) {
                 span.error(e);
                 logger.error(e.toString());

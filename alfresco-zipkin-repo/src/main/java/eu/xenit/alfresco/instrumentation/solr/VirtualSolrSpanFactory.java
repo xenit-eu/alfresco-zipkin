@@ -1,7 +1,5 @@
 package eu.xenit.alfresco.instrumentation.solr;
 
-import brave.Span;
-import brave.Tracer;
 import eu.xenit.alfresco.instrumentation.solr.representations.ShardedSolrRequest;
 import eu.xenit.alfresco.instrumentation.solr.representations.ShardedSolrSubRequest;
 import eu.xenit.alfresco.instrumentation.solr.representations.SolrRequest;
@@ -16,11 +14,6 @@ import java.util.regex.Pattern;
 
 public class VirtualSolrSpanFactory {
     private static final Logger logger = LoggerFactory.getLogger(VirtualSolrSpanFactory.class);
-
-    public SolrRequest solrRequest;
-    public boolean sharded = false;
-    public HashMap<String, ShardedSolrRequest> shardedRequests;
-    public String receivingSolrInstance;
 
     private static final String NUMFOUND_KEY = "numFound";
     private static final String SUB_NUMFOUND_KEY = "NumFound";
@@ -37,16 +30,32 @@ public class VirtualSolrSpanFactory {
     private static final String REQUEST_PURPOSE_KEY = "RequestPurpose";
     private static final String HIGHLIGHT_QUERY_KEY = "hl.q";
     private static final String PARSED_QUERY_KEY = "parsedquery_toString";
+    private static final String SUB_RESPONSE_KEY = "Response";
 
-    public VirtualSolrSpanFactory(JSONObject jsonResponse, String path) {
-        receivingSolrInstance = path;
-
+    /**
+     * Parses debugInformation returned by solr into SOLR request Representations.
+     * Debug information from solr is in JSON format (see resources/DebugInfoSharded.json for an example)
+     * This factories function is to create Solr request representations and add information to them based on the debug information.
+     * In case of a nonsharded setup, only one representation will be made: a SolrRequest with no subrequests.
+     * In case of a sharded setup, a main representation will be made with several subrequests
+     * This one main SolrRequest will have multiple shardedRequests (one for each shard) and these ShardedRequests
+     * will have a ShardedSubRequest for each solr phase (EXECUTE_QUERY, GET_FIELDS)
+     *
+     * @param jsonResponse Response, with included JSON debug information, returned by Solr
+     * @param path         endpoint to which the query was sent (is one of the shards in case of a sharded setup)
+     * @return SolrRequest enriched with debug information and possibly containing subrequest ( based on the solr setup sharded / non-sharded)
+     */
+    public SolrRequest parseDebugInformationIntoSolrRequest(JSONObject jsonResponse, String path) {
         //QTime and Number of documents and Query found of main request
         int numFound = -1;
         long qTime = -1;
         String query = "Query not found in response";
+
+        //Sharded configuration (depends on shards param in the original params
+        boolean sharded = false;
+
         //Timing information if available
-        JSONObject mainTimings = null;
+        JSONObject mainTimings;
 
         if (jsonResponse.has(RESPONSE_KEY)) {
             JSONObject responseSection = jsonResponse.getJSONObject(RESPONSE_KEY);
@@ -58,9 +67,10 @@ public class VirtualSolrSpanFactory {
             qTime = Long.parseLong(String.valueOf(responseHeader.opt(QTIME_KEY)));
         }
 
+        HashMap<String, ShardedSolrRequest> shardedSolrRequestHashMap = null;
         if (jsonResponse.has(ORIGINAL_PARAMS_KEY)) {
-
             JSONObject originalParams = jsonResponse.optJSONObject(ORIGINAL_PARAMS_KEY);
+
             if (originalParams != null) {
                 // Find query out of highlighting param
                 if (originalParams.has(HIGHLIGHT_QUERY_KEY)) {
@@ -70,95 +80,44 @@ public class VirtualSolrSpanFactory {
                 if (originalParams.has(SHARDS_KEY)) {
                     //Sharded setup
                     sharded = true;
-                    createShardedRequests(jsonResponse, originalParams, query);
+                    shardedSolrRequestHashMap = createShardedRequests(jsonResponse, originalParams, query);
                 }
+
             } else {
                 if (jsonResponse.has(DEBUG_KEY) && jsonResponse.optJSONObject(DEBUG_KEY).has(PARSED_QUERY_KEY)) {
                     query = jsonResponse.optJSONObject(DEBUG_KEY).opt(PARSED_QUERY_KEY).toString();
                 }
             }
         }
+
         //Timings of the main request can only be used for annotations for non sharded requests
         //check https://lucene.472066.n3.nabble.com/Confusing-debug-timing-parameter-td4310214.html
         mainTimings = getTimingsFromResponseJson(jsonResponse);
-        solrRequest = new SolrRequest(numFound, qTime, query, mainTimings);
-    }
+        SolrRequest solrRequest = new SolrRequest(numFound, qTime, query, mainTimings, sharded);
 
-    public Span createVirtualSolrSpans(Tracer tracer, Span solrSpan, long startTime, long endTime) {
-
-        //Apply main solr information to span
-        solrRequest.applyToSpan(solrSpan, startTime);
-
-        //Add sharded boolean tag
-        solrSpan.tag("sharded", String.valueOf(sharded));
-
-        //Approximation of time that main solr request was not actively searching -> I/O and package transmissions
-        long transmissionTime = ((endTime - startTime) - solrRequest.qTime * 1000) / 2;
-
-        if (shardedRequests != null) {
-            //Find the first solr shard instance to which the request was sent to
-            //Example path /solr/shard1/afts
-            String shardInstanceIdentifier = getShardInstanceIdentifier(receivingSolrInstance, 2);
-            ShardedSolrRequest firstRequest = shardedRequests.get(shardInstanceIdentifier);
-
-            //Create a new span for the first sharded request
-            Span firstShardedSpan = tracer.newChild(solrSpan.context());
-
-            //Start the first span on startTime of main span + transmission time to first shard instance (approximation)
-            long firstReceiveTime = startTime + transmissionTime;
-
-            //Apply to newly create span for the first shard instance which propagates the query to the other shards
-            firstRequest.completeSpan(firstShardedSpan, firstReceiveTime);
-
-            //Create a child span for the different subrequests
-            firstRequest.createAndCompleteSubSpans(tracer, firstShardedSpan, firstReceiveTime);
-
-            //Approximate transmission time between different shard instances (similar approx)
-            long shardInstanceTransmissionTime = ((firstRequest.elapsedTime - firstRequest.qTime) / 3) * 1000;
-
-            for (ShardedSolrRequest shardedSolrRequest : shardedRequests.values()) {
-                if (shardedSolrRequest != firstRequest) {
-                    //Create a new span for each further shardedRequest
-                    Span subsequentSpan = tracer.newChild(solrSpan.context());
-                    long spanStartTime = firstReceiveTime + shardInstanceTransmissionTime;
-                    shardedSolrRequest.completeSpan(subsequentSpan, spanStartTime);
-                    shardedSolrRequest.createAndCompleteSubSpans(tracer, subsequentSpan, spanStartTime);
-                }
-            }
+        if (shardedSolrRequestHashMap != null) {
+            solrRequest.setShardedRequests(shardedSolrRequestHashMap);
         }
 
-        return solrSpan;
-    }
-
-    private String getShardInstanceIdentifier(String in, int index) {
-        String[] segments = in.split("/");
-        if (index == -1) {
-            return segments[segments.length - 1];
-        } else {
-            return segments[index];
+        if (sharded == true) {
+            solrRequest.setReceivingSolrShard(getShardInstanceIdentifier(path, 2));
         }
+
+        return solrRequest;
     }
 
-    private JSONObject getTimingsFromResponseJson(JSONObject jsonResponse) {
-        if (jsonResponse != null && sharded == false) {
-            return jsonResponse.optJSONObject(DEBUG_KEY).optJSONObject(TIMINGS_KEY);
-        } else {
-            return null;
-        }
-    }
-
-    private static String findTimings(String s) {
-        Pattern timingsRegex = Pattern.compile("timing=(.*),processedDenies");
-        Matcher matcher = timingsRegex.matcher(s);
-        matcher.find();
-        return matcher.group(1);
-    }
-
-    private void createShardedRequests(JSONObject jsonResponse, JSONObject originalParams, String query) {
+    /**
+     * Creates ShardedSolrRequest and ShardedSolrSubRequests that will be added to the main SolrRequest.
+     * The ShardedSolrRequests are not requests but rather virtual parents for the different ShardedSolrSubRequests.
+     * These ShardedSolrRequests help for representation.
+     * Their duration is calculated by summing the timings of child ShardedSolrSubRequests.
+     * The ShardedSolrSubRequests are generated by the tracking fields of the debug information.
+     */
+    private HashMap<String, ShardedSolrRequest> createShardedRequests(JSONObject jsonResponse, JSONObject originalParams, String query) {
         String[] shards = originalParams.getString(SHARDS_KEY).split(",");
-        shardedRequests = new HashMap<>();
+        HashMap<String, ShardedSolrRequest> shardedRequests = new HashMap<>();
 
-        //Loop over shards and add debug/tracking information to each request representation
+        // Loop over shards and add debug/tracking information to each request representation
         for (int shardIndex = 0; shardIndex < shards.length; shardIndex++) {
             String shardName = shards[shardIndex];
             String shardShortName = getShardInstanceIdentifier(shardName, -1);
@@ -177,6 +136,8 @@ public class VirtualSolrSpanFactory {
                 while (keys.hasNext()) {
                     String key = keys.next();
                     JSONObject value = trackingDebug.optJSONObject(key);
+
+                    //Check if the debug information has a key with the respective shard url / name
                     if (!key.equals(RID_KEY) && value.has(shardName)) {
                         //In a ShardedSolrSubRequest
                         JSONObject subRequestTrackingInfo = value.getJSONObject(shardName);
@@ -185,19 +146,20 @@ public class VirtualSolrSpanFactory {
                         int srNumFound = subRequestTrackingInfo.optInt(SUB_NUMFOUND_KEY);
                         long srElapsedTime = subRequestTrackingInfo.optLong(ELAPSEDTIME_KEY);
                         String requestPurpose = subRequestTrackingInfo.optString(REQUEST_PURPOSE_KEY);
-
-                        String subResponse = subRequestTrackingInfo.optString("Response");
+                        String subResponse = subRequestTrackingInfo.optString(SUB_RESPONSE_KEY);
 
                         JSONObject timings = null;
+                        String timingString = "";
                         try {
-                            // Timings section in debug information is not necessarily a correctly formatted JSONObject.
-                            // (can contain illegal chars due to shard urls)
+                            // Response objects contained in the tracking information is a string representation of a JSONObject
+                            // it is not gauranteed to be in correct JSON format (can contain illegal chars due to shard urls)
                             // Use Regex instead to get the timing information for the subrequests
-                            String timingString = findTimings(subResponse);
+                            timingString = findTimings(subResponse);
                             timings = new JSONObject(timingString.replaceAll("=", ":"));
                         } catch (JSONException e) {
-                            e.printStackTrace();
-                            throw e;
+                            //do nothing and proceed without timings
+                            logger.debug("Searching of shardedRequest timings have failed: " + e.getMessage());
+                            logger.debug("timingString: " + timingString);
                         }
 
                         ShardedSolrSubRequest subRequest = new ShardedSolrSubRequest(srNumFound, srQTime, timings,
@@ -215,20 +177,34 @@ public class VirtualSolrSpanFactory {
                 ShardedSolrRequest shardedSolrRequest = new ShardedSolrRequest(Collections.max(numFoundSet), cummulativeQTime,
                         null, query, shardName, totalElapsed);
                 shardedSolrRequest.setSubRequestHashMap(subRequestHashMap);
-                this.shardedRequests.put(shardShortName, shardedSolrRequest);
+                shardedRequests.put(shardShortName, shardedSolrRequest);
             }
+        }
+        return shardedRequests;
+    }
+
+    private String getShardInstanceIdentifier(String in, int index) {
+        String[] segments = in.split("/");
+        if (index == -1) {
+            return segments[segments.length - 1];
+        } else {
+            return segments[index];
         }
     }
 
-    public SolrRequest getMainSolrRequest() {
-        return solrRequest;
+    private JSONObject getTimingsFromResponseJson(JSONObject jsonResponse) {
+        if (jsonResponse != null) {
+            return jsonResponse.optJSONObject(DEBUG_KEY).optJSONObject(TIMINGS_KEY);
+        } else {
+            return null;
+        }
     }
 
-    public boolean isSharded() {
-        return sharded;
+    private static String findTimings(String s) {
+        Pattern timingsRegex = Pattern.compile("timing=(.*),processedDenies");
+        Matcher matcher = timingsRegex.matcher(s);
+        matcher.find();
+        return matcher.group(1);
     }
 
-    public HashMap<String, ShardedSolrRequest> getShardedRequests() {
-        return shardedRequests;
-    }
 }
