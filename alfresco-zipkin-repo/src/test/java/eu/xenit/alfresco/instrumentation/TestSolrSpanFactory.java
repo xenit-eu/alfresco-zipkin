@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import static org.junit.Assert.*;
 
 public class TestSolrSpanFactory {
-
+    private VirtualSolrSpanFactory virtualSolrSpanFactory = new VirtualSolrSpanFactory();
 
     private JSONObject loadTestDebugInformation(String fileName) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
@@ -48,7 +48,7 @@ public class TestSolrSpanFactory {
         return contentBuilder.toString();
     }
 
-    public void assertSolrRequest(SolrRequest solrRequest, VirtualSolrSpanFactory virtualSolrSpanFactory, boolean shouldBeSharded) {
+    public void assertSolrRequest(SolrRequest solrRequest, boolean shouldBeSharded) {
         assertNotNull(solrRequest.qTime);
         assertNotNull(solrRequest.query);
         assertNotNull(solrRequest.numFound);
@@ -77,10 +77,17 @@ public class TestSolrSpanFactory {
     @Test
     public void testShardedDebugInfoParsing() throws IOException {
         String path = "http://shard1:8080/solr/shard1";
-        JSONObject debugInfo = loadTestDebugInformation("debugInfoText.txt");
-        VirtualSolrSpanFactory virtualSolrSpanFactory = new VirtualSolrSpanFactory();
+        JSONObject debugInfo = loadTestDebugInformation("debugInfoSharded.txt");
         SolrRequest solrRequest = virtualSolrSpanFactory.parseDebugInformationIntoSolrRequest(debugInfo, path);
-        assertSolrRequest(solrRequest, virtualSolrSpanFactory, true);
+        assertSolrRequest(solrRequest, true);
+    }
+
+    @Test
+    public void testNonShardedDebugInfoParsing() throws IOException {
+        String path = "/solr/alfresco/afts";
+        JSONObject debugInfo = loadTestDebugInformation("debugInfoNonSharded.txt");
+        SolrRequest solrRequest = virtualSolrSpanFactory.parseDebugInformationIntoSolrRequest(debugInfo, path);
+        assertSolrRequest(solrRequest, false);
     }
 
 
