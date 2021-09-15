@@ -3,20 +3,20 @@ version: '2.1'
 services:
   alfresco:
     environment:
-    - DB_DRIVER=com.p6spy.engine.spy.P6SpyDriver
-    - DB_URL=${COMPOSE_DB_URL:-jdbc:p6spy:postgresql://database:5432/alfresco}
-    - GLOBAL_zipkin.collector=http://zipkin:9411/api/v2/spans
-    # sampling on 1.0 for demo purposes
-    - GLOBAL_zipkin.service.alfresco.sampler.rate=1.0
-    - GLOBAL_zipkin.service.solr.sampler.rate=1.0
-    - GLOBAL_zipkin.service.share.sampler.rate=1.0
-    - INDEX=solr4
+      - DB_DRIVER=com.p6spy.engine.spy.P6SpyDriver
+      - DB_URL=${COMPOSE_DB_URL:-jdbc:p6spy:postgresql://database:5432/alfresco}
+      - GLOBAL_zipkin.collector=http://zipkin:9411/api/v2/spans
+      # sampling on 1.0 for demo purposes
+      - GLOBAL_zipkin.service.alfresco.sampler.rate=1.0
+      - GLOBAL_zipkin.service.solr.sampler.rate=1.0
+      - GLOBAL_zipkin.service.share.sampler.rate=1.0
 
   share:
     environment:
-    - JAVA_OPTS=-Dzipkin.collector=http://zipkin:9411/api/v2/spans
+      - JAVA_OPTS=-Dzipkin.collector=http://zipkin:9411/api/v2/spans
 
   zipkin:
+    container_name: zipkin
     image: docker.io/openzipkin/zipkin:2
     ports:
-    - ${COMPOSE_ZIPKIN_TCP_9411:-9411:9411}
+      - ${COMPOSE_ZIPKIN_TCP_9411:-9411:9411}

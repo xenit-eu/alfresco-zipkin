@@ -3,14 +3,18 @@ version: '2.1'
 services:
   alfresco:
     environment:
-    - INDEX=solr4
+      - INDEX=solr6
 
   solr:
-    image: docker.io/xenit/alfresco-solr4:5.1
+    image: docker.io/xenit/alfresco-solr6:1.4
+    container_name: solr
     volumes:
-    - solr:/opt/alfresco/alf_data
+      - solr:/opt/alfresco/alf_data
     environment:
-    - ALFRESCO_HOST=alfresco
+      - ALFRESCO_HOST=alfresco
+      - JAVA_XMS=512M
+      - JAVA_XMX=2048M
+      - SHARDING=false
 
 volumes:
   solr:

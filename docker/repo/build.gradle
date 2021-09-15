@@ -3,27 +3,21 @@ plugins {
 }
 
 dependencies {
-    baseAlfrescoWar "org.alfresco:alfresco-platform:5.2.g@war"
+    baseAlfrescoWar "org.alfresco:alfresco-enterprise:5.2.5@war"
     alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
+    alfrescoSM(group: 'org.postgresql', name: 'postgresql', version: '42.2.22')
+    alfrescoSM(group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.2.5')
 }
 
 project.tasks.buildDockerImage.dependsOn(":alfresco-zipkin-repo:amp")
 
 dockerAlfresco {
-    baseImage = "docker.io/xenit/alfresco-repository-community:5.2.g"
-
-    leanImage = true
-
-    dockerBuild {
-        repository = "docker.io/xenit/alfresco-zipkin-repo"
-        tags = [ rootProject.version ]
-        automaticTags = false
-        pull = true
-    }
+    baseImage = "docker.io/xenit/alfresco-repository-skeleton:5.2"
+    leanImage = false
 }
 
 docker {
-    if(project.hasProperty('DOCKER_USER') && project.hasProperty('DOCKER_PASSWORD')) {
+    if (project.hasProperty('DOCKER_USER') && project.hasProperty('DOCKER_PASSWORD')) {
         registryCredentials {
             username = project.DOCKER_USER
             password = project.DOCKER_PASSWORD

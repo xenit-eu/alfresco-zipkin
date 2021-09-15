@@ -1,15 +1,32 @@
 plugins {
-    id "eu.xenit.docker-compose" version "5.2.0" apply false
+    id "eu.xenit.docker-compose" version "5.3.0" apply false
+    id "eu.xenit.docker" version "5.3.0" apply false
+}
+
+def copyPropertyValueIfExists(sourcePropertyName, targetPropertyName) {
+    if (project.hasProperty(sourcePropertyName)) {
+        project.ext[targetPropertyName] = project.property(sourcePropertyName)
+    }
 }
 
 allprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
 
+    copyPropertyValueIfExists('alfresco_nexus_username', 'org.alfresco.maven.nexus.username')
+    copyPropertyValueIfExists('alfresco_nexus_password', 'org.alfresco.maven.nexus.password')
+
     repositories {
         mavenCentral()
         maven {
-            url 'https://artifacts.alfresco.com/nexus/content/repositories/public/'
+            url 'https://artifacts.alfresco.com/nexus/content/groups/public'
+        }
+        maven {
+            url 'https://artifacts.alfresco.com/nexus/content/groups/private'
+            credentials {
+                username project.property('org.alfresco.maven.nexus.username')
+                password project.property('org.alfresco.maven.nexus.password')
+            }
         }
     }
 

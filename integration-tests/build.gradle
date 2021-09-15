@@ -115,4 +115,13 @@ dockerCompose {
         isRequiredBy(project.tasks.integrationTestMariadb)
     }
 
+    sharded {
+        environment.put 'COMPOSE_DB_URL', 'jdbc:postgresql://database:5432/alfresco'
+        useComposeFiles = [
+                "$composeDir/docker-compose.yml",
+                "$composeDir/docker-compose-sharded.yml",
+                "$composeDir/docker-compose-share.yml",
+                "$composeDir/docker-compose-zipkin.yml"
+        ]
+    }
 }

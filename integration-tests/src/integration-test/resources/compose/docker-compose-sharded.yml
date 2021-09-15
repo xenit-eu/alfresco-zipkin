@@ -1,0 +1,47 @@
+version: '2.1'
+
+services:
+  alfresco:
+    environment:
+      - INDEX=solr6
+      - SOLR_SSL=none
+      - ENABLE_CLUSTERING=true
+      - DYNAMIC_SHARD_REGISTRATION=true
+      - GLOBAL_local.transform.service.enabled=false
+
+  shard1:
+    image: hub.xenit.eu/alfresco-enterprise/alfresco-solr6:1.3.0.6
+    container_name: shard1
+    ports:
+      - 8081:8080
+    hostname: shard1
+    environment:
+      - JAVA_XMX=1024M
+      - SOLR_HOST=shard1
+      - ALFRESCO_SSL=none
+      - CORES_TO_TRACK=alfresco
+      - CORES_ALFRESCO=shard1
+      - GLOBAL_ALL_shard.method=DB_ID
+      - GLOBAL_ALL_shard.count=2
+      - GLOBAL_shard1_shard.instance=0
+
+  shard2:
+    image: hub.xenit.eu/alfresco-enterprise/alfresco-solr6:1.3.0.6
+    container_name: shard2
+    ports:
+      - 8082:8080
+    hostname: shard2
+    environment:
+      - JAVA_XMX=1024M
+      - SOLR_HOST=shard2
+      - ALFRESCO_SSL=none
+      - CORES_TO_TRACK=alfresco
+      - CORES_ALFRESCO=shard2
+      - GLOBAL_ALL_shard.method=DB_ID
+      - GLOBAL_ALL_shard.count=2
+      - GLOBAL_shard2_shard.instance=1
+
+volumes:
+  alfresco:
+  postgres:
+  logs:
