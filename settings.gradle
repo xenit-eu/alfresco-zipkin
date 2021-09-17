@@ -15,10 +15,15 @@ def integrationTestVersions = ["52", "60", "61", "62", "70"];
 if (!hasProperty("community")) {
     integrationTestVersions.each { version ->
         include ":integration-tests:alfresco-enterprise-${version}"
+        include ":integration-tests:alfresco-enterprise-${version}:alfresco-enterprise-${version}-repo"
+        include ":integration-tests:alfresco-enterprise-${version}:alfresco-enterprise-${version}-share"
     }
 }
 if (!hasProperty("enterprise")) {
     integrationTestVersions.each { version ->
         include ":integration-tests:alfresco-community-${version}"
+        include ":integration-tests:alfresco-community-${version}:alfresco-community-${version}-repo"
+        include ":integration-tests:alfresco-community-${version}:alfresco-community-${version}-share"
     }
 }
+

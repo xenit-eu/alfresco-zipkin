@@ -16,6 +16,23 @@ allprojects {
     copyPropertyValueIfExists('alfresco_nexus_username', 'org.alfresco.maven.nexus.username')
     copyPropertyValueIfExists('alfresco_nexus_password', 'org.alfresco.maven.nexus.password')
 
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    group = 'eu.xenit.alfresco'
+    version = '1.1.1'
+/*
+    boolean isRelease = ci.branch?.startsWith("release")
+    if (!isRelease) {
+        version += "-SNAPSHOT"
+    }*/
+
+    ext {
+        alfresco_version = '5.2.f'
+        brave_version = '5.13.3'
+        zipkin_reporter_version = '2.16.3'
+    }
+
     repositories {
         mavenCentral()
         maven {
@@ -28,26 +45,6 @@ allprojects {
                 password project.property('org.alfresco.maven.nexus.password')
             }
         }
-    }
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    group = 'eu.xenit.alfred.edge'
-    def baseVersion = "1.1.1"
-
-    def branchName = System.env.BRANCH_NAME
-
-    def isRelease = branchName != null && branchName.startsWith("release")
-    if (isRelease)
-        version = "$baseVersion"
-    else
-        version = "$baseVersion-SNAPSHOT"
-
-    project.ext {
-        alfresco_version = '5.2.f'
-        brave_version = '5.13.3'
-        zipkin_reporter_version = '2.16.3'
     }
 }
 
