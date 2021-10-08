@@ -69,7 +69,7 @@ public class ZipkinTraceTest {
                 .auth().form(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD, IntegrationTestUtil.FORM_AUTH_CONFIG_SHARE)
                 .headers(b3Headers)
                 .queryParam("term", "test")
-                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/proxy/alfresco/slingshot/search/")
+                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/proxy/alfresco/slingshot/search")
                 .then()
                 .log().status()
                 .log().ifValidationFails(LogDetail.BODY)

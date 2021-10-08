@@ -2,7 +2,7 @@ ext {
     alfrescoBaseWarBom = 'org.alfresco:acs-packaging:7.0.0'
     alfrescoBaseWar = 'org.alfresco:content-services@war'
     alfrescoBaseImage = 'hub.xenit.eu/alfresco-enterprise/alfresco-repository-enterprise:7.0.0'
-    shareBaseWar = 'org.alfresco:share:5.2.f@war'
+    alfrescoShareServices = 'org.alfresco:alfresco-share-services:7.0.1'
+    shareBaseWar = 'org.alfresco:share:7.0.1.2@war'
     shareBaseImage = 'docker.io/xenit/alfresco-share-enterprise:5.2'
-    solrFlavor = 'solr6'
 }

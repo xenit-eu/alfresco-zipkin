@@ -26,7 +26,6 @@ subprojects {
         alfrescoEdition = "Enterprise"
     }
 
-
     if (project.getDepth() != 3) {
         def repoProject = project.project(project.name + "-repo")
         def shareProject = project.project(project.name + "-share")
@@ -49,9 +48,16 @@ subprojects {
                 }
             } else if (project.name.endsWith("-repo")) {
                 dependencies {
+                    if (project.parent.hasProperty("alfrescoBaseWarBom")) {
+                        baseAlfrescoWar platform("${alfrescoBaseWarBom}")
+                    }
                     baseAlfrescoWar "${alfrescoBaseWar}"
+                    if (project.parent.hasProperty("alfrescoShareServices")) {
+                        alfrescoAmp "${alfrescoShareServices}"
+                    }
                     alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
                     alfrescoSM(group: 'org.postgresql', name: 'postgresql', version: '42.2.22')
+                    implementation group: 'p6spy', name: 'p6spy', version: '3.9.1'
                     alfrescoSM(group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.2.5')
                 }
 
@@ -79,20 +85,20 @@ subprojects {
 
         task integrationTestDefault(type: Test, group: "verification") {
             useJUnitPlatform()
-            testClassesDirs = sourceSets.integrationTest.output.classesDirs
-            classpath = sourceSets.integrationTest.runtimeClasspath
+            testClassesDirs = project.parent.sourceSets.test.output.classesDirs
+            classpath = project.parent.sourceSets.test.runtimeClasspath
             outputs.upToDateWhen { false }
         }
 
         task integrationTestMariadb(type: Test, group: "verification") {
-            testClassesDirs = sourceSets.integrationTest.output.classesDirs
-            classpath = sourceSets.integrationTest.runtimeClasspath
+            testClassesDirs = project.parent.sourceSets.test.output.classesDirs
+            classpath = project.parent.sourceSets.test.runtimeClasspath
             outputs.upToDateWhen { false }
         }
 
         task integrationTestUnconfigured(type: Test, group: "verification") {
-            testClassesDirs = sourceSets.integrationTest.output.classesDirs
-            classpath = sourceSets.integrationTest.runtimeClasspath
+            testClassesDirs = project.parent.sourceSets.test.output.classesDirs
+            classpath = project.parent.sourceSets.test.runtimeClasspath
             outputs.upToDateWhen { false }
 
             filter {
@@ -105,8 +111,6 @@ subprojects {
             dependsOn integrationTestMariadb
             dependsOn integrationTestUnconfigured
         }
-
-        //check.dependsOn integrationTest
 
         afterEvaluate {
             composeUp.dependsOn("${repoProject.path}:buildDockerImage")
@@ -123,7 +127,7 @@ subprojects {
         evaluationDependsOn(shareProject.path)
 
         dockerCompose {
-            isRequiredBy(project.tasks.integrationTestDefault)
+            //isRequiredBy(project.tasks.integrationTestDefault)
 
             fromProject("ALFRESCO_IMAGE", repoProject)
             fromProject("SHARE_IMAGE", shareProject)
@@ -132,7 +136,7 @@ subprojects {
             removeVolumes = true
 
             // Uncomment for quick iterations when developing integration tests
-            // stopContainers = false
+            //stopContainers = false
 
             // expose alfresco/zipkin on a random port
             environment.put 'COMPOSE_ALFRESCO_TCP_8080', '8080'
@@ -142,7 +146,6 @@ subprojects {
             environment.put 'COMPOSE_DB_URL', 'jdbc:p6spy:postgresql://database:5432/alfresco'
 
             def composeDir = '../src/test/resources/compose'
-            println "$composeDir/docker-compose.yml"
             useComposeFiles = [
                     "$composeDir/docker-compose.yml",
                     "$composeDir/docker-compose-share.yml",
