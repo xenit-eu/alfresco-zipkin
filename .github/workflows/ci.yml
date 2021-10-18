@@ -22,11 +22,6 @@ jobs:
         run: ./gradlew check
       - name: Test
         run: ./gradlew test
-      - name: Upload analysis to sonarcloud
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ github.token }}
-        run: ./gradlew aggregateJacocoReport sonarqube
   integration-test:
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/heads/master') || startsWith(github.base_ref, 'master') || startswith(github.ref, 'refs/heads/release') }}
