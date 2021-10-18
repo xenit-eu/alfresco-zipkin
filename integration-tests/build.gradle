@@ -127,7 +127,7 @@ subprojects {
         evaluationDependsOn(shareProject.path)
 
         dockerCompose {
-            //isRequiredBy(project.tasks.integrationTestDefault)
+            isRequiredBy(project.tasks.integrationTestDefault)
 
             fromProject("ALFRESCO_IMAGE", repoProject)
             fromProject("SHARE_IMAGE", shareProject)

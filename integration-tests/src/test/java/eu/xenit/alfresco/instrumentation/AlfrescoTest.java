@@ -9,7 +9,6 @@ public class AlfrescoTest {
 
     @Test
     public void alfrescoWebdavUp() {
-        System.out.println("TEST TEST TEST TEST TEST TEST TEST TEST TEST");
         given()
                 .auth().basic(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD)
                 .log().uri()

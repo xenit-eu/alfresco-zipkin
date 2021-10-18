@@ -19,4 +19,5 @@ services:
     container_name: zipkin
     image: docker.io/openzipkin/zipkin:2
     ports:
+      - 9411:9411
       - ${COMPOSE_ZIPKIN_TCP_9411:-9411:9411}
