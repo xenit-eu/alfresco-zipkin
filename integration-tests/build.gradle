@@ -91,12 +91,14 @@ subprojects {
         }
 
         task integrationTestMariadb(type: Test, group: "verification") {
+            useJUnitPlatform()
             testClassesDirs = project.parent.sourceSets.test.output.classesDirs
             classpath = project.parent.sourceSets.test.runtimeClasspath
             outputs.upToDateWhen { false }
         }
 
         task integrationTestUnconfigured(type: Test, group: "verification") {
+            useJUnitPlatform()
             testClassesDirs = project.parent.sourceSets.test.output.classesDirs
             classpath = project.parent.sourceSets.test.runtimeClasspath
             outputs.upToDateWhen { false }
