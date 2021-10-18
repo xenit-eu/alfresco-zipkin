@@ -3,7 +3,7 @@ ext {
     alfrescoBaseWar = 'org.alfresco:content-services-community@war'
 
     alfrescoBaseImage = 'docker.io/xenit/alfresco-repository-community:7.0.0'
-    alfrescoShareServices = 'org.alfresco:alfresco-share-services:7.0.1'
-    shareBaseWar = 'org.alfresco:share:7.0.1.2@war'
-    shareBaseImage = 'docker.io/xenit/alfresco-share-community:7.0'
+    alfrescoShareServices = 'org.alfresco:alfresco-share-services:7.0.0'
+    shareBaseWar = 'org.alfresco:share:7.0.0@war'
+    shareBaseImage = 'docker.io/xenit/alfresco-share-community:7.0.0'
 }

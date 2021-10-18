@@ -3,5 +3,5 @@ ext {
     alfrescoBaseImage = 'hub.xenit.eu/alfresco-enterprise/alfresco-repository-enterprise:6.2.1'
     alfrescoShareServices = 'org.alfresco:alfresco-share-services:6.2.2.4'
     shareBaseWar = 'org.alfresco:share:6.2.2.6@war'
-    shareBaseImage = 'hub.xenit.eu/alfresco-enterprise/alfresco-share-enterprise:5.2'
+    shareBaseImage = 'docker.io/xenit/alfresco-share-community:6.2'
 }
