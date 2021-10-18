@@ -2,10 +2,6 @@ plugins {
     id "eu.xenit.docker-compose"
 }
 
-ext {
-    slf4jVersion = '1.7.25'
-}
-
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}"
