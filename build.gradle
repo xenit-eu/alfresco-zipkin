@@ -15,6 +15,9 @@ allprojects {
 
     copyPropertyValueIfExists('alfresco_nexus_username', 'org.alfresco.maven.nexus.username')
     copyPropertyValueIfExists('alfresco_nexus_password', 'org.alfresco.maven.nexus.password')
+    copyPropertyValueIfExists('xenit_docker_registry_url', 'eu.xenit.docker.registry.url')
+    copyPropertyValueIfExists('xenit_docker_registry_username', 'eu.xenit.docker.registry.username')
+    copyPropertyValueIfExists('xenit_docker_registry_password', 'eu.xenit.docker.registry.password')
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
