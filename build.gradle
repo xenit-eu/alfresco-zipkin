@@ -1,6 +1,7 @@
 plugins {
     id "eu.xenit.docker-compose" version "5.3.0" apply false
     id "eu.xenit.docker" version "5.3.0" apply false
+    id "be.vbgn.ci-detect" version "0.1.0"
 }
 
 def copyPropertyValueIfExists(sourcePropertyName, targetPropertyName) {
@@ -25,10 +26,10 @@ allprojects {
     group = 'eu.xenit.alfresco'
     version = '1.1.1'
 
-//    boolean isRelease = ci.branch?.startsWith("release")
-//    if (!isRelease) {
-//        version += "-SNAPSHOT"
-//    }
+    boolean isRelease = ci.branch?.startsWith("release")
+    if (!isRelease) {
+        version += "-SNAPSHOT"
+    }
 
     ext {
         alfresco_version = '5.2.f'
