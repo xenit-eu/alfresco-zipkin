@@ -113,17 +113,6 @@ subprojects {
             dependsOn integrationTestUnconfigured
         }
 
-        afterEvaluate {
-            composeUp.dependsOn("${repoProject.path}:buildDockerImage")
-            composeUp.dependsOn("${shareProject.path}:buildDockerImage")
-            unconfiguredComposeUp.dependsOn("${repoProject.path}:buildDockerImage")
-            unconfiguredComposeUp.dependsOn("${shareProject.path}:buildDockerImage")
-            mariadbComposeUp.dependsOn("${repoProject.path}:buildDockerImage")
-            mariadbComposeUp.dependsOn("${shareProject.path}:buildDockerImage")
-            shardedComposeUp.dependsOn("${repoProject.path}:buildDockerImage")
-            shardedComposeUp.dependsOn("${shareProject.path}:buildDockerImage")
-        }
-
         evaluationDependsOn(repoProject.path)
         evaluationDependsOn(shareProject.path)
 
