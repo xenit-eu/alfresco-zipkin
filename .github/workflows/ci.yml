@@ -45,7 +45,7 @@ jobs:
   publish:
     needs: [ test, integration-test ]
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref, 'refs/heads/master') || startswith(github.ref, 'refs/heads/release') }}
+    if: ${{ github.ref == 'refs/heads/master' || startswith(github.ref, 'refs/tags/') }}
     steps:
       - uses: actions/checkout@v2
         with:
