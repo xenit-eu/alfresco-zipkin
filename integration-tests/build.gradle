@@ -14,6 +14,9 @@ dependencies {
     testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: "${slf4jVersion}"
 }
 
+// Main integration tests project
+def integrationTestsProject = project
+
 subprojects {
 
     def alfrescoVersion = project.name[-2..-1]
@@ -22,7 +25,7 @@ subprojects {
         alfrescoEdition = "Enterprise"
     }
 
-    if (project.getDepth() != 3) {
+    if (project.parent == integrationTestsProject) {
         def repoProject = project.project(project.name + "-repo")
         def shareProject = project.project(project.name + "-share")
         apply plugin: 'eu.xenit.docker-compose.auto'
