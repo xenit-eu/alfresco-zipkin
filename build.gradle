@@ -1,13 +1,18 @@
 plugins {
     id "eu.xenit.docker-compose" version "5.3.0" apply false
     id "eu.xenit.docker" version "5.3.0" apply false
-    id "be.vbgn.ci-detect" version "0.5.0"
+    id 'org.ajoberstar.reckon' version '0.13.0'
 }
 
 def copyPropertyValueIfExists(sourcePropertyName, targetPropertyName) {
     if (project.hasProperty(sourcePropertyName)) {
         project.ext[targetPropertyName] = project.property(sourcePropertyName)
     }
+}
+
+reckon {
+    scopeFromProp()
+    snapshotFromProp()
 }
 
 allprojects {
@@ -25,11 +30,6 @@ allprojects {
 
     group = 'eu.xenit.alfresco'
     version = '1.1.1'
-
-    boolean isRelease = ci.branch?.startsWith("release")
-    if (!isRelease) {
-        version += "-SNAPSHOT"
-    }
 
     ext {
         alfresco_version = '5.2.f'
