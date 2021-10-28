@@ -1,0 +1,7 @@
+ext {
+    alfrescoBaseWar = 'org.alfresco:alfresco-platform:5.2.g@war'
+    alfrescoBaseImage = 'docker.io/xenit/alfresco-repository-community:5.2.g'
+    alfrescoShareServices = 'org.alfresco:alfresco-share-services:5.2.f'
+    shareBaseWar = 'org.alfresco:share:5.2.f@war'
+    shareBaseImage = 'docker.io/xenit/alfresco-share-community:5.2'
+}

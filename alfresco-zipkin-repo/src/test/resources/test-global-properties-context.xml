@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <bean id="test-properties" class="java.util.Properties" />
+    <bean id="test-properties" class="java.util.Properties"/>
 
     <!--
     Load/simulate a 'global-properties' bean & bean-property expansion
@@ -16,17 +16,18 @@
         </property>
         <property name="propertiesArray">
             <list>
-                <ref bean="test-properties" />
+                <ref bean="test-properties"/>
             </list>
         </property>
-        <property name="localOverride" value="true" />
-        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <property name="localOverride" value="true"/>
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
         <property name="propertiesPersister">
             <bean class="org.alfresco.config.AlfrescoPropertiesPersister"/>
         </property>
     </bean>
 
-    <bean id="common-placeholder-configurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" abstract="true">
+    <bean id="common-placeholder-configurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" abstract="true">
         <!-- Note: If you change these settings you may also want to change them in the LegacyConfigPostProcessor as well. -->
         <property name="valueSeparator">
             <null/>
@@ -52,7 +53,7 @@
         </property>
         <property name="properties">
             <!--<list>-->
-                <ref bean="global-properties"/>
+            <ref bean="global-properties"/>
             <!--</list>-->
         </property>
         <!--  Do not allow version information to be overriden -->

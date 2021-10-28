@@ -1,7 +1,7 @@
 package eu.xenit.alfresco.instrumentation;
 
 import io.restassured.filter.log.LogDetail;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,7 @@ public class ZipkinTraceTest {
 
     @Test
     public void traceAlfresco() throws InterruptedException {
+        System.out.println("TEST TEST TEST TEST TEST TEST TEST TEST TEST");
 
         String traceId = randomTraceId();
         Map<String, String> b3Headers = createB3Headers(traceId);
@@ -33,7 +34,7 @@ public class ZipkinTraceTest {
                 .log().uri()
                 .log().headers()
                 .get(IntegrationTestUtil.getAlfrescoServiceUrl() + "/alfresco/webdav")
-            .then()
+                .then()
                 .log().status()
                 .statusCode(is(200));
 
@@ -44,15 +45,15 @@ public class ZipkinTraceTest {
                 .log().uri()
                 .pathParam("trace", traceId)
                 .get(IntegrationTestUtil.getZipkinServiceUrl() + "/zipkin/api/v2/trace/{trace}")
-            .then()
+                .then()
                 .log().status()
                 .log().ifValidationFails(LogDetail.BODY)
                 .statusCode(is(200))
                 // check if this trace contains at least 1 span with serviceName 'alfresco'
                 .body("findAll { it.localEndpoint.serviceName == 'alfresco' }.size()", greaterThan(1))
-                .body ( "localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco"))
-                .body ( "remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"))
-                ;
+                .body("localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco"))
+                .body("remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"))
+        ;
 
     }
 
@@ -68,8 +69,8 @@ public class ZipkinTraceTest {
                 .auth().form(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD, IntegrationTestUtil.FORM_AUTH_CONFIG_SHARE)
                 .headers(b3Headers)
                 .queryParam("term", "test")
-                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/proxy/alfresco/slingshot/search/")
-            .then()
+                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/proxy/alfresco/slingshot/search")
+                .then()
                 .log().status()
                 .log().ifValidationFails(LogDetail.BODY)
                 // Do not validate search-results: solr might not have indexed alfresco yet
@@ -83,18 +84,18 @@ public class ZipkinTraceTest {
                 .log().uri()
                 .pathParam("trace", traceId)
                 .get(IntegrationTestUtil.getZipkinServiceUrl() + "/zipkin/api/v2/trace/{trace}")
-            .then()
+                .then()
                 .log().status()
                 .log().ifValidationFails()
                 .statusCode(is(200))
                 .body("findAll { it.localEndpoint.serviceName == 'share' }.size()", greaterThan(1))
                 .body("findAll { it.localEndpoint.serviceName == 'alfresco' }.size()", greaterThan(1))
-                .body ( "localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco", "share", "solr"))
-                .body ( "localEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("solr"))
-                .body ( "remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"))
+                .body("localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco", "share", "solr"))
+                .body("localEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("solr"))
+                .body("remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"))
 
 
-                ;
+        ;
 
     }
 

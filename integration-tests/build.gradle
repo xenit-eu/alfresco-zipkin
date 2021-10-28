@@ -2,126 +2,183 @@ plugins {
     id "eu.xenit.docker-compose"
 }
 
-sourceSets {
-    integrationTest {
-        java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/integration-test/java')
-        }
-        resources {
-            srcDir file('src/integration-test/resources')
-        }
-    }
-}
-
-configurations {
-    integrationTestCompile.extendsFrom testCompile
-    integrationTestRuntime.extendsFrom testRuntime
-}
-
 dependencies {
-    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
-    testCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testImplementation "org.hamcrest:hamcrest-all:${hamcrestVersion}"
+    testImplementation "io.rest-assured:rest-assured:${restAssuredVersion}"
+
+    testImplementation group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
+    testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: "${slf4jVersion}"
 }
 
-task integrationTestDefault(type: Test, group: "verification") {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    outputs.upToDateWhen { false }
-}
+// Main integration tests project
+def integrationTestsProject = project
 
-task integrationTestMariadb(type: Test, group: "verification") {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    outputs.upToDateWhen { false }
-}
+subprojects {
 
-task integrationTestUnconfigured(type: Test, group: "verification") {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    outputs.upToDateWhen { false }
+    def alfrescoVersion = project.name[-2..-1]
+    def alfrescoEdition = "Community"
+    if (project.name.contains("-enterprise-")) {
+        alfrescoEdition = "Enterprise"
+    }
 
-    filter {
-        includeTestsMatching "eu.xenit.alfresco.instrumentation.AlfrescoTest"
+    if (project.parent == integrationTestsProject) {
+        def repoProject = project.project(project.name + "-repo")
+        def shareProject = project.project(project.name + "-share")
+        apply plugin: 'eu.xenit.docker-compose.auto'
+
+        apply from: "${project.projectDir}/overload.gradle"
+        subprojects {
+            apply from: "${project.parent.projectDir}/overload.gradle"
+            apply plugin: "eu.xenit.docker-alfresco"
+
+            if (project.name.endsWith("-share")) {
+                dependencies {
+                    baseShareWar "${shareBaseWar}"
+                    shareAmp project(path: ':alfresco-zipkin-share', configuration: 'amp')
+                }
+
+                dockerAlfresco {
+                    baseImage = "${shareBaseImage}"
+                    leanImage = false
+                }
+            } else if (project.name.endsWith("-repo")) {
+                dependencies {
+                    if (project.parent.hasProperty("alfrescoBaseWarBom")) {
+                        baseAlfrescoWar platform("${alfrescoBaseWarBom}")
+                    }
+                    baseAlfrescoWar "${alfrescoBaseWar}"
+                    if (project.parent.hasProperty("alfrescoShareServices")) {
+                        alfrescoAmp "${alfrescoShareServices}"
+                    }
+                    alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
+                    alfrescoSM(group: 'org.postgresql', name: 'postgresql', version: '42.2.22')
+                    implementation group: 'p6spy', name: 'p6spy', version: '3.9.1'
+                    alfrescoSM(group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.2.5')
+                }
+
+                dockerAlfresco {
+                    baseImage = "${alfrescoBaseImage}"
+                    leanImage = false
+                }
+            }
+        }
+
+        description = "Alfresco ${alfrescoEdition} ${alfrescoVersion} with Zipkin Tracing"
+
+        sourceSets {
+            integrationTest {
+                java {
+                    compileClasspath += main.output + test.output
+                    runtimeClasspath += main.output + test.output
+                    srcDir file('src/test/java')
+                }
+                resources {
+                    srcDir file('src/test/resources')
+                }
+            }
+        }
+
+        task integrationTestDefault(type: Test, group: "verification") {
+            useJUnitPlatform()
+            testClassesDirs = project.parent.sourceSets.test.output.classesDirs
+            classpath = project.parent.sourceSets.test.runtimeClasspath
+            outputs.upToDateWhen { false }
+        }
+
+        task integrationTestMariadb(type: Test, group: "verification") {
+            useJUnitPlatform()
+            testClassesDirs = project.parent.sourceSets.test.output.classesDirs
+            classpath = project.parent.sourceSets.test.runtimeClasspath
+            outputs.upToDateWhen { false }
+        }
+
+        task integrationTestUnconfigured(type: Test, group: "verification") {
+            useJUnitPlatform()
+            testClassesDirs = project.parent.sourceSets.test.output.classesDirs
+            classpath = project.parent.sourceSets.test.runtimeClasspath
+            outputs.upToDateWhen { false }
+
+            filter {
+                includeTestsMatching "eu.xenit.alfresco.instrumentation.AlfrescoTest"
+            }
+        }
+
+        task integrationTests(type: Test, group: "verification") {
+            dependsOn integrationTestDefault
+            dependsOn integrationTestMariadb
+            dependsOn integrationTestUnconfigured
+        }
+
+        evaluationDependsOn(repoProject.path)
+        evaluationDependsOn(shareProject.path)
+
+        dockerCompose {
+            isRequiredBy(project.tasks.integrationTestDefault)
+
+            fromProject("ALFRESCO_IMAGE", repoProject)
+            fromProject("SHARE_IMAGE", shareProject)
+
+            captureContainersOutput = true
+            removeVolumes = true
+
+            // Uncomment for quick iterations when developing integration tests
+            //stopContainers = false
+
+            // expose alfresco/zipkin on a random port
+            environment.put 'COMPOSE_ALFRESCO_TCP_8080', '8080'
+            environment.put 'COMPOSE_ALFRESCO_TCP_8080', '8080'
+            environment.put 'COMPOSE_SHARE_TCP_8080', '8080'
+            environment.put 'COMPOSE_ZIPKIN_TCP_9411', '9411'
+            environment.put 'COMPOSE_DB_URL', 'jdbc:p6spy:postgresql://database:5432/alfresco'
+
+            def composeDir = '../src/test/resources/compose'
+            useComposeFiles = [
+                    "$composeDir/docker-compose.yml",
+                    "$composeDir/docker-compose-share.yml",
+                    "$composeDir/docker-compose-solr.yml",
+                    "$composeDir/docker-compose-zipkin.yml"
+            ]
+
+            unconfigured {
+                environment.put 'COMPOSE_DB_URL', 'jdbc:postgresql://database:5432/alfresco'
+                useComposeFiles = [
+                        "$composeDir/docker-compose.yml",
+                        "$composeDir/docker-compose-share.yml"
+                ]
+                isRequiredBy(project.tasks.integrationTestUnconfigured)
+            }
+
+            mariadb {
+                environment.put 'COMPOSE_DB_URL', 'jdbc:p6spy:mysql://database/alfresco?useUnicode=yes&characterEncoding=UTF-8'
+                useComposeFiles = [
+                        "$composeDir/docker-compose.yml",
+                        "$composeDir/docker-compose-share.yml",
+                        "$composeDir/docker-compose-solr.yml",
+                        "$composeDir/docker-compose-mariadb.yml",
+                        "$composeDir/docker-compose-zipkin.yml"
+                ]
+                isRequiredBy(project.tasks.integrationTestMariadb)
+            }
+
+            sharded {
+                environment.put 'COMPOSE_DB_URL', 'jdbc:postgresql://database:5432/alfresco'
+                useComposeFiles = [
+                        "$composeDir/docker-compose.yml",
+                        "$composeDir/docker-compose-sharded.yml",
+                        "$composeDir/docker-compose-share.yml",
+                        "$composeDir/docker-compose-zipkin.yml"
+                ]
+            }
+        }
+
+        configurations {
+            integrationTestCompile.extendsFrom testCompile
+            integrationTestRuntime.extendsFrom testRuntime
+        }
     }
 }
 
-task integrationTests(type: Test, group: "verification") {
-    dependsOn integrationTestDefault
-    dependsOn integrationTestMariadb
-    dependsOn integrationTestUnconfigured
-}
-
-afterEvaluate {
-    composeUp.dependsOn(":docker:repo:buildDockerImage")
-    composeUp.dependsOn(":docker:share:buildDockerImage")
-    unconfiguredComposeUp.dependsOn(":docker:repo:buildDockerImage")
-    unconfiguredComposeUp.dependsOn(":docker:share:buildDockerImage")
-    mariadbComposeUp.dependsOn(":docker:repo:buildDockerImage")
-    mariadbComposeUp.dependsOn(":docker:share:buildDockerImage")
-}
-
-evaluationDependsOn(":docker:repo")
-evaluationDependsOn(":docker:share")
-
-
-dockerCompose {
-    isRequiredBy(project.tasks.integrationTestDefault)
-
-    fromBuildImage("ALFRESCO_IMAGE", rootProject.project(":docker:repo").tasks.named('buildDockerImage'))
-    fromBuildImage("SHARE_IMAGE", rootProject.project(":docker:share").tasks.named('buildDockerImage'))
-
-    captureContainersOutput = true
-    removeVolumes = true
-
-    // Uncomment for quick iterations when developing integration tests
-    // stopContainers = false
-
-    // expose alfresco/zipkin on a random port
-    environment.put 'COMPOSE_ALFRESCO_TCP_8080', '8080'
-    environment.put 'COMPOSE_SHARE_TCP_8080', '8080'
-    environment.put 'COMPOSE_ZIPKIN_TCP_9411', '9411'
-    environment.put 'COMPOSE_DB_URL', 'jdbc:p6spy:postgresql://database:5432/alfresco'
-
-    def composeDir = 'src/integration-test/resources/compose'
-
-    useComposeFiles = [
-            "$composeDir/docker-compose.yml",
-            "$composeDir/docker-compose-share.yml",
-            "$composeDir/docker-compose-solr.yml",
-            "$composeDir/docker-compose-zipkin.yml"
-    ]
-
-    unconfigured {
-        environment.put 'COMPOSE_DB_URL', 'jdbc:postgresql://database:5432/alfresco'
-        useComposeFiles = [
-                "$composeDir/docker-compose.yml",
-                "$composeDir/docker-compose-share.yml"
-        ]
-        isRequiredBy(project.tasks.integrationTestUnconfigured)
-    }
-
-    mariadb {
-        environment.put 'COMPOSE_DB_URL', 'jdbc:p6spy:mysql://database/alfresco?useUnicode=yes&characterEncoding=UTF-8'
-        useComposeFiles = [
-                "$composeDir/docker-compose.yml",
-                "$composeDir/docker-compose-share.yml",
-                "$composeDir/docker-compose-solr.yml",
-                "$composeDir/docker-compose-mariadb.yml",
-                "$composeDir/docker-compose-zipkin.yml"
-        ]
-        isRequiredBy(project.tasks.integrationTestMariadb)
-    }
-
-    sharded {
-        environment.put 'COMPOSE_DB_URL', 'jdbc:postgresql://database:5432/alfresco'
-        useComposeFiles = [
-                "$composeDir/docker-compose.yml",
-                "$composeDir/docker-compose-sharded.yml",
-                "$composeDir/docker-compose-share.yml",
-                "$composeDir/docker-compose-zipkin.yml"
-        ]
-    }
-}
