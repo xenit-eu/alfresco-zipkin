@@ -29,7 +29,6 @@ allprojects {
     targetCompatibility = 1.8
 
     group = 'eu.xenit.alfresco.zipkin'
-    version = '1.1.1'
 
     ext {
         alfresco_version = '5.2.f'
