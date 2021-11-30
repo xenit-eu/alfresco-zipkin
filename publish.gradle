@@ -6,6 +6,8 @@ publishing {
         all {
             pom {
                 url = 'https://github.com/xenit-eu/alfresco-zipkin'
+                name = project.name
+                description = project.description
 
                 scm {
                     connection = 'scm:git:git@github.com:xenit-eu/alfresco-zipkin.git'
@@ -34,7 +36,7 @@ publishing {
         maven {
             def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
             def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            url = version.toString().endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
             credentials {
                 username = project.hasProperty('sonatype_username') ? project.sonatype_username : ''
