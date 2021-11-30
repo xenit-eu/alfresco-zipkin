@@ -6,6 +6,8 @@ publishing {
         all {
             pom {
                 url = 'https://github.com/xenit-eu/alfresco-zipkin'
+                name = project.name
+                description = project.description
 
                 scm {
                     connection = 'scm:git:git@github.com:xenit-eu/alfresco-zipkin.git'

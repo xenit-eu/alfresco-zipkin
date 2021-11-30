@@ -23,6 +23,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 apply from: "../publish.gradle"
 
+project.description = "Alfresco core AMP with Zipkin Instrumentation"
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
