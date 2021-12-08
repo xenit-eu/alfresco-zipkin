@@ -30,26 +30,26 @@ public class TracingInterceptor extends HandlerInterceptorAdapter implements Ini
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (log.isDebugEnabled())
-            log.debug("Prehandle "+request.getRequestURL());
+            log.debug("Prehandle " + request.getRequestURL());
 
         try {
             Span span = httpServerHandler.handleReceive(extractor, request);
             Tracer.SpanInScope ws = tracer.withSpanInScope(span);
-            request.setAttribute(SPAN_NAME,span);
-            request.setAttribute(SPAN_IN_SCOPE_NAME,ws);
-        } catch(Exception e) {
-            log.error("Problem with brave instrumentation: "+e.getMessage(),e);
+            request.setAttribute(SPAN_NAME, span);
+            request.setAttribute(SPAN_IN_SCOPE_NAME, ws);
+        } catch (Exception e) {
+            log.error("Problem with brave instrumentation: " + e.getMessage(), e);
         }
         return true;
     }
 
     @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView){
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
         if (log.isDebugEnabled())
-            log.error("PostHandle "+request.getRequestURL());
-
+            log.debug("PostHandle " + request.getRequestURL());
         try {
             Span span = (Span) request.getAttribute(SPAN_NAME);
+            span.name(request.getPathInfo());
             request.removeAttribute(SPAN_NAME);
             if (span != null)
                 httpServerHandler.handleSend(response, null, span);
@@ -63,7 +63,7 @@ public class TracingInterceptor extends HandlerInterceptorAdapter implements Ini
     }
 
     @Override
-    public void afterPropertiesSet()  {
+    public void afterPropertiesSet() {
         tracer = httpTracing.tracing().tracer();
         httpServerHandler = HttpServerHandler.create(httpTracing, new HttpServletAdapter());
         extractor = httpTracing.tracing().propagation().extractor(HttpServletRequest::getHeader);
