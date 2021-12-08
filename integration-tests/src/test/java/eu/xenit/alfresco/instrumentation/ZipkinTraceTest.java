@@ -22,7 +22,6 @@ public class ZipkinTraceTest {
 
     @Test
     public void traceAlfresco() throws InterruptedException {
-        System.out.println("TEST TEST TEST TEST TEST TEST TEST TEST TEST");
 
         String traceId = randomTraceId();
         Map<String, String> b3Headers = createB3Headers(traceId);
