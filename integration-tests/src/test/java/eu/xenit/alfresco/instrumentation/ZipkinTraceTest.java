@@ -18,7 +18,9 @@ public class ZipkinTraceTest {
 
     // Components buffer zipkin-spans before sending them in
     // batch to the zipkin-api, default timeout = 1 second.
-    private static final long SLEEP_MILLIS = 1 * 1000L;
+    private static final long SLEEP_MILLIS = 5 * 1000L;
+    // In alfresco versions 6.x and greater it takes some time before solr actually gets called for search requests
+    private static final long SOLR_SLEEP_MILLIS = 360 * 1000L;
 
     @Test
     public void traceAlfresco() throws InterruptedException {
@@ -61,6 +63,8 @@ public class ZipkinTraceTest {
     public void traceShare() throws InterruptedException {
         String traceId = randomTraceId();
         Map<String, String> b3Headers = createB3Headers(traceId);
+
+        TimeUnit.MILLISECONDS.sleep(SOLR_SLEEP_MILLIS);
 
         given()
                 .log().all()
