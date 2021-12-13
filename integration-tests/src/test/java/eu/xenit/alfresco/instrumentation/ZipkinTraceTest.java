@@ -19,8 +19,6 @@ public class ZipkinTraceTest {
     // Components buffer zipkin-spans before sending them in
     // batch to the zipkin-api, default timeout = 1 second.
     private static final long SLEEP_MILLIS = 5 * 1000L;
-    // In alfresco versions 6.x and greater it takes some time before solr actually gets called for search requests
-    private static final long SOLR_SLEEP_MILLIS = 360 * 1000L;
 
     @Test
     public void traceAlfresco() throws InterruptedException {
@@ -64,20 +62,15 @@ public class ZipkinTraceTest {
         String traceId = randomTraceId();
         Map<String, String> b3Headers = createB3Headers(traceId);
 
-        TimeUnit.MILLISECONDS.sleep(SOLR_SLEEP_MILLIS);
-
         given()
                 .log().all()
                 // Share login
                 .auth().form(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD, IntegrationTestUtil.FORM_AUTH_CONFIG_SHARE)
                 .headers(b3Headers)
-                .queryParam("term", "*test*")
-                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/proxy/alfresco/slingshot/search")
+                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/page/proxy/alfresco/slingshot/doclib/treenode/node/alfresco/company/home")
                 .then()
                 .log().status()
                 .log().ifValidationFails(LogDetail.BODY)
-                // Do not validate search-results: solr might not have indexed alfresco yet
-                // .body("totalRecords", is(1))
                 .statusCode(is(200));
 
         TimeUnit.MILLISECONDS.sleep(SLEEP_MILLIS);
@@ -93,14 +86,50 @@ public class ZipkinTraceTest {
                 .statusCode(is(200))
                 .body("findAll { it.localEndpoint.serviceName == 'share' }.size()", greaterThan(1))
                 .body("findAll { it.localEndpoint.serviceName == 'alfresco' }.size()", greaterThan(1))
-                .body("localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco", "share", "solr"))
-                .body("localEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("solr"))
+                .body("localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco", "share"))
+                .body("remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"));
+    }
+
+    @Test
+    public void traceSolr() throws InterruptedException {
+        String traceId = randomTraceId();
+        Map<String, String> b3Headers = createB3Headers(traceId);
+
+        Map<String, Map<String, String>> qBody = createSearchRequestBody("Meeting*");
+
+        // Make a call to Alfresco with B3-headers
+        given()
+                .auth().basic(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD)
+                .headers(b3Headers)
+                .log().uri()
+                .log().headers()
+                .contentType("application/json")
+                .body(qBody)
+                .log().body()
+                .post(IntegrationTestUtil.getAlfrescoServiceUrl() + "/alfresco/api/-default-/public/search/versions/1/search")
+                .then()
+                .log().status()
+                .statusCode(is(200));
+
+        TimeUnit.MILLISECONDS.sleep(SLEEP_MILLIS);
+
+        // Verify trace is recorded
+        given()
+                .log().uri()
+                .pathParam("trace", traceId)
+                .get(IntegrationTestUtil.getZipkinServiceUrl() + "/zipkin/api/v2/trace/{trace}")
+                .then()
+                .log().status()
+                .log().ifValidationFails(LogDetail.BODY)
+                .statusCode(is(200))
+                // check if this trace contains at least 1 span with serviceName 'alfresco'
+                .body("findAll { it.localEndpoint.serviceName == 'alfresco' }.size()", greaterThan(1))
+                .body("localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco", "solr"))
                 .body("remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"))
-
-
         ;
 
     }
+
 
     private Map<String, String> createB3Headers(String traceId) {
         Map<String, String> b3Headers = new HashMap<>();
@@ -117,5 +146,15 @@ public class ZipkinTraceTest {
         // if (length == 15) throw new RuntimeException("WTF");
         // https://github.com/openzipkin/zipkin/blob/master/zipkin/src/main/java/zipkin2/Span.java#L638
         return s.length() == 15 ? "0" + s : s;
+    }
+
+    private Map<String, Map<String, String>> createSearchRequestBody(String query) {
+        // Search request Body
+        Map<String, Map<String, String>> body = new HashMap<>();
+        Map<String, String> q = new HashMap<>();
+        q.put("query", query);
+        q.put("language", "afts");
+        body.put("query", q);
+        return body;
     }
 }
