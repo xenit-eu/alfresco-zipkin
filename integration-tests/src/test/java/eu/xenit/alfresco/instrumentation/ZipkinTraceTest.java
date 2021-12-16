@@ -20,6 +20,7 @@ public class ZipkinTraceTest {
     // batch to the zipkin-api, default timeout = 1 second.
     private static final long SLEEP_MILLIS = 5 * 1000L;
 
+
     @Test
     public void traceAlfresco() throws InterruptedException {
         System.out.println("TEST TEST TEST TEST TEST TEST TEST TEST TEST");
@@ -95,8 +96,6 @@ public class ZipkinTraceTest {
         String traceId = randomTraceId();
         Map<String, String> b3Headers = createB3Headers(traceId);
 
-        Map<String, Map<String, String>> qBody = createSearchRequestBody("Meeting*");
-
         // Make a call to Alfresco with B3-headers
         given()
                 .auth().basic(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD)
@@ -104,9 +103,8 @@ public class ZipkinTraceTest {
                 .log().uri()
                 .log().headers()
                 .contentType("application/json")
-                .body(qBody)
                 .log().body()
-                .post(IntegrationTestUtil.getAlfrescoServiceUrl() + "/alfresco/api/-default-/public/search/versions/1/search")
+                .get(IntegrationTestUtil.getAlfrescoServiceUrl() + "/alfresco/s/api/solrstats")
                 .then()
                 .log().status()
                 .statusCode(is(200));
