@@ -96,14 +96,14 @@ public class ZipkinTraceTest {
         String traceId = randomTraceId();
         Map<String, String> b3Headers = createB3Headers(traceId);
 
+        TimeUnit.MILLISECONDS.sleep(SLEEP_MILLIS);
+
         // Make a call to Alfresco with B3-headers
         given()
                 .auth().basic(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD)
                 .headers(b3Headers)
                 .log().uri()
                 .log().headers()
-                .contentType("application/json")
-                .log().body()
                 .get(IntegrationTestUtil.getAlfrescoServiceUrl() + "/alfresco/s/api/solrstats")
                 .then()
                 .log().status()
