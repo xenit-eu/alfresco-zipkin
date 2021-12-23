@@ -4,13 +4,18 @@ services:
   alfresco:
     environment:
       - INDEX=solr6
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/alfresco/s/api/solrstats" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
 
   solr:
     image: docker.io/xenit/alfresco-solr6:1.4
     container_name: solr
     volumes:
       - solr:/opt/alfresco/alf_data
-    entrypoint: /bin/bash -c "while !(curl --silent -t1 -f 'http://alfresco:8080/alfresco/s/api/server' ) ; do echo ..; sleep 5; done; echo alfresco is up; /docker-entrypoint.sh $${SOLR_INSTALL_HOME}/startup.sh"
+    #entrypoint: /bin/bash -c "while !(curl --silent -t1 -f 'http://alfresco:8080/alfresco/s/api/server' ) ; do echo ..; sleep 5; done; echo alfresco is up; /docker-entrypoint.sh $${SOLR_INSTALL_HOME}/startup.sh"
     environment:
       - ALFRESCO_HOST=alfresco
       - JAVA_XMS=512M
