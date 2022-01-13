@@ -15,7 +15,7 @@ services:
       - ${COMPOSE_SOLR_TCP:-8081}:8080
     volumes:
       - solr:/opt/alfresco/alf_data
-    entrypoint: /bin/bash -c "while !(curl --silent -t1 -f 'http://alfresco:8080/alfresco/s/api/server' ) ; do echo ..; sleep 5; done; echo alfresco is up; /docker-entrypoint.sh $${SOLR_INSTALL_HOME}/startup.sh"
+    #entrypoint: /bin/bash -c "while !(curl --silent -t1 -f 'http://alfresco:8080/alfresco/s/api/server' ) ; do echo ..; sleep 5; done; echo alfresco is up; /docker-entrypoint.sh $${SOLR_INSTALL_HOME}/startup.sh"
     environment:
       - ALFRESCO_HOST=alfresco
       - ALFRESCO_SSL=none
