@@ -1,5 +1,7 @@
 package eu.xenit.alfresco.instrumentation;
 
+import eu.xenit.alfresco.instrumentation.solradmin.SolrAdminClientException;
+import eu.xenit.alfresco.instrumentation.solradmin.SolrAdminHttpClient;
 import io.restassured.filter.log.LogDetail;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +21,7 @@ public class ZipkinTraceTest {
     // Components buffer zipkin-spans before sending them in
     // batch to the zipkin-api, default timeout = 1 second.
     private static final long SLEEP_MILLIS = 5 * 1000L;
-
+    private SolrTestHelper solrTestHelper = new SolrTestHelper();
 
     @Test
     public void traceAlfresco() throws InterruptedException {
@@ -92,11 +94,11 @@ public class ZipkinTraceTest {
     }
 
     @Test
-    public void traceSolr() throws InterruptedException {
+    public void traceSolr() throws InterruptedException, SolrAdminClientException {
         String traceId = randomTraceId();
         Map<String, String> b3Headers = createB3Headers(traceId);
 
-        TimeUnit.MILLISECONDS.sleep(SLEEP_MILLIS);
+        solrTestHelper.waitForTransactionSync();
 
         // Make a call to Alfresco with B3-headers
         given()
