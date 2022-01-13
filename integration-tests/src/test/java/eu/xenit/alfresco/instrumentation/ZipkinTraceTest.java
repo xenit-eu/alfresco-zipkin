@@ -12,9 +12,7 @@ import java.util.concurrent.TimeUnit;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasValue;
+import static org.hamcrest.Matchers.*;
 
 public class ZipkinTraceTest {
 
@@ -128,6 +126,46 @@ public class ZipkinTraceTest {
                 .body("remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"))
         ;
 
+    }
+
+    @Test
+    public void traceSearchRequest() throws InterruptedException, SolrAdminClientException {
+        String traceId = randomTraceId();
+        Map<String, String> b3Headers = createB3Headers(traceId);
+
+        solrTestHelper.waitForTransactionSync();
+
+        // Make a search request call to Alfresco with B3-Headers
+        given()
+                .log().all()
+                // Share login
+                .auth().form(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD, IntegrationTestUtil.FORM_AUTH_CONFIG_SHARE)
+                .headers(b3Headers)
+                .queryParam("term", "Meeting*")
+                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/proxy/alfresco/slingshot/search")
+                .then()
+                .log().status()
+                .log().ifValidationFails(LogDetail.BODY)
+                .statusCode(is(200));
+
+        TimeUnit.MILLISECONDS.sleep(SLEEP_MILLIS);
+
+        // Verify trace is recorded
+        given()
+                .log().uri()
+                .pathParam("trace", traceId)
+                .get(IntegrationTestUtil.getZipkinServiceUrl() + "/zipkin/api/v2/trace/{trace}")
+                .then()
+                .log().status()
+                .log().body(true)
+                .statusCode(is(200))
+                .body("findAll { it.localEndpoint.serviceName == 'share' }.size()", greaterThan(1))
+                .body("findAll { it.localEndpoint.serviceName == 'alfresco' }.size()", greaterThan(1))
+                .body("localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco", "share", "solr"))
+                .body("localEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("solr"))
+                .body("remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"))
+                .body("findAll { it.localEndpoint.serviceName == 'solr' }.tags.sharded", hasItem("false"))
+                .body("findAll { it.localEndpoint.serviceName == 'solr' }.tags.Query.size()", greaterThan(0));
     }
 
 
