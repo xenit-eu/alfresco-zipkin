@@ -15,7 +15,6 @@ import java.util.HashMap;
 public class SolrAdminHttpClient {
     private String adminUrl;
     private HttpClient httpClient;
-    private int maxTries = 20;
 
     public SolrAdminHttpClient(String url) {
         httpClient = new HttpClient();

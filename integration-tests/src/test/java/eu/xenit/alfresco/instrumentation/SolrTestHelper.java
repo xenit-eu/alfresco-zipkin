@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 public class SolrTestHelper {
     private String solrCoreName = "alfresco";
-    private final int maxTries = 20;
+    private final int maxTries = 40;
     protected SolrAdminHttpClient solrAdminHttpClient;
 
 
