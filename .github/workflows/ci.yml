@@ -34,7 +34,7 @@ jobs:
         #        flavour: [ "community", "enterprise" ]
         #        version: [ "52", "60", "61", "62" ]
         flavour: [ "community", "enterprise" ]
-        version: [ "52", "60" ]
+        version: [ "61", "62" ]
     steps:
       - uses: actions/checkout@v2
         with:

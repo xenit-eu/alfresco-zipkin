@@ -7,7 +7,7 @@ services:
       - SOLR_SSL=none
 
   solr:
-    image: docker.io/xenit/alfresco-solr6:1.4
+    image: docker.io/xenit/alfresco-solr6:2.0.2
     container_name: solr
     #    expose:
     #      - 8080
