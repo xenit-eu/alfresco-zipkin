@@ -122,7 +122,7 @@ public class ZipkinTraceTest {
                 .statusCode(is(200))
                 // check if this trace contains at least 1 span with serviceName 'alfresco'
                 .body("findAll { it.localEndpoint.serviceName == 'alfresco' }.size()", greaterThan(1))
-                .body("localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco", "solr"))
+                //.body("localEndpoint.serviceName.flatten().unique()", containsInAnyOrder("alfresco", "solr"))
                 .log().ifValidationFails(LogDetail.BODY)
                 .body("remoteEndpoint.serviceName.flatten().unique().findAll{ it != '' }", hasItems("db"))
         ;
