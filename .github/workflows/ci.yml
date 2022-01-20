@@ -31,8 +31,10 @@ jobs:
     if: ${{ startsWith(github.ref, 'refs/heads/master') || startsWith(github.base_ref, 'master') || startsWith(github.ref, 'refs/tags/') }}
     strategy:
       matrix:
+        #        flavour: [ "community", "enterprise" ]
+        #        version: [ "52", "60", "61", "62" ]
         flavour: [ "community", "enterprise" ]
-        version: [ "52", "60", "61", "62" ]
+        version: [ "61", "62" ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -41,7 +43,7 @@ jobs:
         with:
           java-version: 11
       - name: Test
-        run: ./gradlew :integration-tests:alfresco-${{ matrix.flavour }}-${{ matrix.version }}:integrationTests
+        run: ./gradlew :integration-tests:alfresco-${{ matrix.flavour }}-${{ matrix.version }}:integrationTests --info
         env:
           ORG_GRADLE_PROJECT_xenit_docker_registry_url: ${{ secrets.XENIT_DOCKER_REGISTRY_URL }}
           ORG_GRADLE_PROJECT_xenit_docker_registry_username: ${{ secrets.XENIT_DOCKER_REGISTRY_USERNAME }}

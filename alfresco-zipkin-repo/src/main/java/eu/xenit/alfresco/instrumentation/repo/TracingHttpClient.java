@@ -67,7 +67,7 @@ public class TracingHttpClient extends HttpClient {
                 long endTime = clock.currentTimeMicroseconds();
                 mainRequest.applyToSpan(tracer, span, startTime, endTime);
             } catch (Exception e) {
-                logger.error(e.toString());
+                logger.error("Failed to parse response JSON from solr", e);
             } finally {
                 httpClientHandler.handleReceive(responseStatus, error, span);
             }

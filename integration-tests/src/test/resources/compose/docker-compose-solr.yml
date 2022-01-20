@@ -4,17 +4,26 @@ services:
   alfresco:
     environment:
       - INDEX=solr6
+      - SOLR_SSL=none
 
   solr:
-    image: docker.io/xenit/alfresco-solr6:1.4
+    image: docker.io/xenit/alfresco-solr6:2.0.2
     container_name: solr
+    #    expose:
+    #      - 8080
+    ports:
+      - ${COMPOSE_SOLR_TCP:-8081}:8080
     volumes:
       - solr:/opt/alfresco/alf_data
+    #entrypoint: /bin/bash -c "while !(curl --silent -t1 -f 'http://alfresco:8080/alfresco/s/api/server' ) ; do echo ..; sleep 5; done; echo alfresco is up; /docker-entrypoint.sh $${SOLR_INSTALL_HOME}/startup.sh"
     environment:
       - ALFRESCO_HOST=alfresco
-      - JAVA_XMS=512M
+      - ALFRESCO_SSL=none
+      - JAVA_XMS=1024M
       - JAVA_XMX=2048M
       - SHARDING=false
+    healthcheck:
+      disable: true
 
 volumes:
   solr:

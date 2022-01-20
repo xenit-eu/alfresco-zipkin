@@ -9,6 +9,10 @@ dependencies {
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
     testImplementation "org.hamcrest:hamcrest-all:${hamcrestVersion}"
     testImplementation "io.rest-assured:rest-assured:${restAssuredVersion}"
+    testImplementation "org.json:json:20160212"
+    testImplementation 'commons-httpclient:commons-httpclient:3.1'
+    testImplementation 'javax.servlet:servlet-api:2.5'
+
 
     testImplementation group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
     testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: "${slf4jVersion}"
@@ -57,6 +61,7 @@ subprojects {
                     alfrescoAmp project(path: ':alfresco-zipkin-repo', configuration: 'amp')
                     alfrescoSM(group: 'org.postgresql', name: 'postgresql', version: '42.2.22')
                     implementation group: 'p6spy', name: 'p6spy', version: '3.9.1'
+                    implementation "org.json:json:20160212"
                     alfrescoSM(group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.2.5')
                 }
 
@@ -131,8 +136,9 @@ subprojects {
             // expose alfresco/zipkin on a random port
             environment.put 'COMPOSE_ALFRESCO_TCP_8080', '8080'
             environment.put 'COMPOSE_ALFRESCO_TCP_8080', '8080'
-            environment.put 'COMPOSE_SHARE_TCP_8080', '8080'
+            environment.put 'COMPOSE_SHARE_TCP_8080', '8082'
             environment.put 'COMPOSE_ZIPKIN_TCP_9411', '9411'
+            environment.put 'COMPOSE_SOLR_TCP', '8081'
             environment.put 'COMPOSE_DB_URL', 'jdbc:p6spy:postgresql://database:5432/alfresco'
 
             def composeDir = '../src/test/resources/compose'
