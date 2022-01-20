@@ -1,13 +1,21 @@
 package eu.xenit.alfresco.instrumentation;
 
 import eu.xenit.alfresco.instrumentation.solradmin.SolrAdminClientException;
-import eu.xenit.alfresco.instrumentation.solradmin.SolrAdminHttpClient;
+import io.restassured.filter.Filter;
+import io.restassured.filter.FilterContext;
 import io.restassured.filter.log.LogDetail;
+import io.restassured.response.Response;
+import io.restassured.specification.FilterableRequestSpecification;
+import io.restassured.specification.FilterableResponseSpecification;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -20,6 +28,7 @@ public class ZipkinTraceTest {
     // batch to the zipkin-api, default timeout = 1 second.
     private static final long SLEEP_MILLIS = 5 * 1000L;
     private SolrTestHelper solrTestHelper = new SolrTestHelper();
+    private static final Logger logger = LoggerFactory.getLogger(ZipkinTraceTest.class);
 
     @Test
     public void traceAlfresco() throws InterruptedException {
@@ -130,6 +139,7 @@ public class ZipkinTraceTest {
     }
 
     @Test
+    @RepeatedTest(3)
     public void traceSearchRequest() throws InterruptedException, SolrAdminClientException {
         String traceId = randomTraceId();
         Map<String, String> b3Headers = createB3Headers(traceId);
@@ -153,6 +163,7 @@ public class ZipkinTraceTest {
 
         // Verify trace is recorded
         given()
+                .filter(new RestAssuredRequestFilter())
                 .log().uri()
                 .pathParam("trace", traceId)
                 .get(IntegrationTestUtil.getZipkinServiceUrl() + "/zipkin/api/v2/trace/{trace}")
@@ -169,6 +180,20 @@ public class ZipkinTraceTest {
                 .body("findAll { it.localEndpoint.serviceName == 'solr' }.tags.Query.size()", greaterThan(0));
     }
 
+    public class RestAssuredRequestFilter implements Filter {
+
+        @Override
+        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+            Response response = ctx.next(requestSpec, responseSpec);
+            if (response.statusCode() != 200) {
+                logger.error(requestSpec.getMethod() + " " + requestSpec.getURI() + " => " +
+                        response.getStatusCode() + " " + response.getStatusLine());
+            }
+            logger.info(requestSpec.getMethod() + " " + requestSpec.getURI() + " \n Request Body =>" + requestSpec.getBody() + "\n Response Status => " +
+                    response.getStatusCode() + " " + response.getStatusLine() + " \n Response Body => " + response.getBody().prettyPrint());
+            return response;
+        }
+    }
 
     private Map<String, String> createB3Headers(String traceId) {
         Map<String, String> b3Headers = new HashMap<>();
