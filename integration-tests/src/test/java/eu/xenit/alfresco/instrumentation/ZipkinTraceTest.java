@@ -147,16 +147,32 @@ public class ZipkinTraceTest {
         solrTestHelper.waitForTransactionSync();
 
         // Make a search request call to Alfresco with B3-Headers
+//        given()
+//                .log().all()
+//                // Share login
+//                .auth().form(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD, IntegrationTestUtil.FORM_AUTH_CONFIG_SHARE)
+//                .headers(b3Headers)
+//                .queryParam("term", "Meeting*")
+//                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/proxy/alfresco/slingshot/search")
+//                .then()
+//                .log().status()
+//                .log().ifValidationFails(LogDetail.BODY)
+//                .statusCode(is(200));
+
+        Map<String, Map<String, String>> qBody = createSearchRequestBody("Meeting*");
+
+        // Make a call to Alfresco with B3-headers
         given()
-                .log().all()
-                // Share login
-                .auth().form(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD, IntegrationTestUtil.FORM_AUTH_CONFIG_SHARE)
+                .auth().basic(IntegrationTestUtil.ALFRESCO_USERNAME, IntegrationTestUtil.ALFRESCO_PASSWORD)
                 .headers(b3Headers)
-                .queryParam("term", "Meeting*")
-                .get(IntegrationTestUtil.getShareServiceUrl() + "/share/proxy/alfresco/slingshot/search")
+                .log().uri()
+                .log().headers()
+                .contentType("application/json")
+                .body(qBody)
+                .log().body()
+                .post(IntegrationTestUtil.getAlfrescoServiceUrl() + "/alfresco/api/-default-/public/search/versions/1/search")
                 .then()
                 .log().status()
-                .log().ifValidationFails(LogDetail.BODY)
                 .statusCode(is(200));
 
         TimeUnit.MILLISECONDS.sleep(SLEEP_MILLIS);
