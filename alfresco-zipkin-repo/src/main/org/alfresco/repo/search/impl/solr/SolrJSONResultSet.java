@@ -113,6 +113,8 @@ public class SolrJSONResultSet implements SearchEngineResultSet {
     private SpellCheckResult spellCheckResult;
     
     private boolean processedDenies;
+
+    private final Map<String, Object> debug = new HashMap<>();
     
     /**
      * Detached result set based on that provided
@@ -356,6 +358,13 @@ public class SolrJSONResultSet implements SearchEngineResultSet {
                 builtStats.forEach((pKey, pVal) -> {
                     stats.put(pKey, getMetrics(pVal));
                 });
+            }
+
+            if(json.has("debug"))
+            {
+                JSONObject debugObj = json.getJSONObject("debug");
+                Map<String, Object> map = debugObj.toMap();
+                debug.putAll(map);
             }
 
             // process Spell check 
@@ -818,4 +827,7 @@ public class SolrJSONResultSet implements SearchEngineResultSet {
         return facetRanges;
     }
     
+    public Map<String, Object> getDebug() {
+		return debug;
+	}
 }
