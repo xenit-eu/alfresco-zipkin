@@ -115,6 +115,8 @@ public class SolrJSONResultSet implements SearchEngineResultSet {
     private boolean processedDenies;
 
     private final Map<String, Object> debug = new HashMap<>();
+
+    private final JSONObject response;
     
     /**
      * Detached result set based on that provided
@@ -136,7 +138,7 @@ public class SolrJSONResultSet implements SearchEngineResultSet {
             status = responseHeader.getLong("status");
             queryTime = responseHeader.getLong("QTime");
             
-            JSONObject response = json.getJSONObject("response");
+            response = json.getJSONObject("response");
             numberFound = response.getLong("numFound");
             start = response.getLong("start");
             Double d = response.getDouble("maxScore");
@@ -830,4 +832,8 @@ public class SolrJSONResultSet implements SearchEngineResultSet {
     public Map<String, Object> getDebug() {
 		return debug;
 	}
+
+    public JSONObject getResponseBodyAsJSONObject() {
+        return response;
+    }
 }
