@@ -1,7 +1,7 @@
 plugins {
     id "eu.xenit.docker-compose" version "5.3.0" apply false
     id "eu.xenit.docker" version "5.3.0" apply false
-    id 'org.ajoberstar.reckon' version '0.13.0'
+//    id 'org.ajoberstar.reckon' version '0.13.0'
 }
 
 def copyPropertyValueIfExists(sourcePropertyName, targetPropertyName) {
@@ -10,10 +10,10 @@ def copyPropertyValueIfExists(sourcePropertyName, targetPropertyName) {
     }
 }
 
-reckon {
+/*reckon {
     scopeFromProp()
     snapshotFromProp()
-}
+}*/
 
 allprojects {
     apply plugin: 'java'
@@ -31,7 +31,7 @@ allprojects {
     group = 'eu.xenit.alfresco.zipkin'
 
     ext {
-        alfresco_version = '5.2.f'
+        alfresco_version = '6.2.0'
         brave_version = '5.13.3'
         zipkin_reporter_version = '2.16.3'
 

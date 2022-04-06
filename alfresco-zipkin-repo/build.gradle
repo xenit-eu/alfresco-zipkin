@@ -1,35 +1,38 @@
 plugins {
     id 'eu.xenit.alfresco' version "0.2.0"
-    id "eu.xenit.amp" version "0.2.0"
+    id "eu.xenit.amp" version "1.1.0"
 }
 
 project.description = "Repo AMP with Zipkin Instrumentation"
 
 dependencies {
-    alfrescoProvided("org.alfresco:alfresco-repository:$alfresco_version")
+    alfrescoProvided enforcedPlatform("org.alfresco:acs-packaging:${alfresco_version}")
+    alfrescoProvided "org.alfresco:alfresco-repository"
+    alfrescoProvided "org.alfresco:alfresco-data-model"
+    alfrescoProvided "org.alfresco:alfresco-remote-api"
 
     compile("io.zipkin.brave:brave-instrumentation-servlet:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-httpclient:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-p6spy:$brave_version")
     compile("io.zipkin.reporter2:zipkin-reporter:$zipkin_reporter_version")
     compile("io.zipkin.reporter2:zipkin-sender-urlconnection:$zipkin_reporter_version")
-    compile (project(':alfresco-zipkin-core')) {
+    compile(project(':alfresco-zipkin-core')) {
         exclude group: "org.alfresco"
     }
 
-    testCompile group: 'junit', name:'junit', version:'4.12'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
     testRuntime group: 'javax.servlet', name: 'servlet-api', version: '2.5'
 }
 
 amp {
-    from("$projectDir/src/main/resources"){
+    from("$projectDir/src/main/resources") {
         include '**/*.properties'
-        expand( artifactId: "$project.name",
+        expand(artifactId: "$project.name",
                 title: "$project.name",
                 description: "$description",
                 version: "$project.version")
     }
-    from("$projectDir/src/main/resources"){
+    from("$projectDir/src/main/resources") {
         exclude '**/*.properties'
     }
     archiveName "$project.name-$version" + ".amp"
@@ -45,6 +48,45 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
+//compileCustomJava {
+//    include = ['org/*']
+//}
+
+//sourceSets {
+//    main {
+//        amp {
+//            config.srcDir(compileJava { include(['org/*']) })
+//        }
+//    }
+//}
+//sourceSets {
+//    orgSources {
+//        java {
+//            srcDirs("src/main/java/org")
+//        }
+//    }
+//    main {
+//        amp {
+//            config.srcDir(orgSources)
+//        }
+//    }
+//}
+
+sourceSets {
+    orgSources {
+        resources {
+            srcDirs("src/main/java/org")
+        }
+    }
+    main {
+        amp {
+            config.srcDir(orgSources)
+        }
+    }
+}
+
+project.tasks.jar.enabled = false
 
 apply from: "../publish.gradle"
 

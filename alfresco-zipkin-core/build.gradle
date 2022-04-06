@@ -1,5 +1,10 @@
+plugins {
+    id 'eu.xenit.alfresco' version "0.2.0"
+}
+
+
 dependencies {
-    compile("org.alfresco:alfresco-repository:$alfresco_version")
+    alfrescoProvided enforcedPlatform("org.alfresco:acs-packaging:${alfresco_version}")
     compile("io.zipkin.brave:brave-instrumentation-servlet:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-httpclient:$brave_version")
     compile("io.zipkin.brave:brave-instrumentation-p6spy:$brave_version")
